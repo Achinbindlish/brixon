@@ -1,6 +1,3 @@
-// Replace this sample data with your real article/price data.
-// You can export from Excel as CSV and convert, or paste directly.
-
 export interface Article {
   articleNumber: string;
   description: string;
@@ -9,14 +6,37 @@ export interface Article {
 }
 
 export const articles: Article[] = [
-  { articleNumber: "ART-1001", description: "Steel Bracket M8", price: 4.75, unit: "pc" },
-  { articleNumber: "ART-1002", description: "Copper Pipe 15mm x 3m", price: 18.90, unit: "pc" },
-  { articleNumber: "ART-1003", description: "Hex Bolt M10x40 DIN 933", price: 0.42, unit: "pc" },
-  { articleNumber: "ART-1004", description: "Rubber Gasket DN50", price: 2.15, unit: "pc" },
-  { articleNumber: "ART-1005", description: "Cable Tray 300mm x 2m", price: 34.50, unit: "pc" },
-  { articleNumber: "ART-1006", description: "PVC Elbow 90° 32mm", price: 1.85, unit: "pc" },
-  { articleNumber: "ART-1007", description: "Stainless Hose Clamp 20-32", price: 1.20, unit: "pc" },
-  { articleNumber: "ART-1008", description: "Welding Rod E6013 3.2mm", price: 12.40, unit: "kg" },
-  { articleNumber: "ART-1009", description: "Insulation Board 50mm", price: 28.00, unit: "m²" },
-  { articleNumber: "ART-1010", description: "Aluminum Profile 40x40 L=6m", price: 45.60, unit: "pc" },
+  { articleNumber: "A592", description: "", price: 16800, unit: "pc" },
+  { articleNumber: "A754", description: "", price: 21000, unit: "pc" },
+  { articleNumber: "A770", description: "", price: 25200, unit: "pc" },
+  { articleNumber: "A851", description: "", price: 25200, unit: "pc" },
+  { articleNumber: "A913", description: "", price: 21000, unit: "pc" },
+  { articleNumber: "A927", description: "", price: 47250, unit: "pc" },
+  { articleNumber: "A955", description: "", price: 19425, unit: "pc" },
+  { articleNumber: "A959", description: "", price: 23100, unit: "pc" },
+  { articleNumber: "C079", description: "", price: 23100, unit: "pc" },
+  { articleNumber: "C123", description: "", price: 15750, unit: "pc" },
+  { articleNumber: "C154", description: "", price: 15750, unit: "pc" },
+  { articleNumber: "C189", description: "", price: 13650, unit: "pc" },
+  { articleNumber: "C190", description: "", price: 23100, unit: "pc" },
+  { articleNumber: "C194", description: "", price: 16800, unit: "pc" },
+  { articleNumber: "C195", description: "", price: 12600, unit: "pc" },
+  { articleNumber: "C200", description: "", price: 11550, unit: "pc" },
+  { articleNumber: "C201", description: "", price: 23100, unit: "pc" },
+  { articleNumber: "C207", description: "", price: 13650, unit: "pc" },
+  { articleNumber: "C208", description: "", price: 18900, unit: "pc" },
+  { articleNumber: "C209", description: "", price: 18900, unit: "pc" },
+  { articleNumber: "C211", description: "", price: 14700, unit: "pc" },
+  { articleNumber: "C217", description: "", price: 13650, unit: "pc" },
+  { articleNumber: "C218", description: "", price: 13650, unit: "pc" },
+  { articleNumber: "C219", description: "", price: 18900, unit: "pc" },
+  { articleNumber: "C222", description: "", price: 13650, unit: "pc" },
+  { articleNumber: "C223", description: "", price: 12600, unit: "pc" },
+  { articleNumber: "C226", description: "", price: 21000, unit: "pc" },
+  { articleNumber: "C227", description: "", price: 21000, unit: "pc" },
+  { articleNumber: "C228", description: "", price: 13650, unit: "pc" },
+  { articleNumber: "D088", description: "", price: 12600, unit: "pc" },
+  { articleNumber: "D089", description: "", price: 13650, unit: "pc" },
+  { articleNumber: "D090", description: "", price: 12600, unit: "pc" },
+  { articleNumber: "D091", description: "", price: 21000, unit: "pc" },
 ];

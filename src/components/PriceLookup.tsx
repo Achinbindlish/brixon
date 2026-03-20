@@ -85,14 +85,12 @@ const PriceLookup = () => {
               <span className="text-sm font-medium text-muted-foreground">
                 {result.articleNumber}
               </span>
-              <span className="text-sm text-muted-foreground">
-                per {result.unit}
-              </span>
             </div>
-            <p className="text-foreground font-medium">{result.description}</p>
+            {result.description && <p className="text-foreground font-medium">{result.description}</p>}
             <p className="text-4xl font-bold tracking-tight text-foreground">
-              €{result.price.toFixed(2)}
+              ₹{result.price.toLocaleString("en-IN")}
             </p>
+            <p className="text-sm text-muted-foreground">MRP with GST</p>
             <button
               onClick={handleClear}
               className="w-full h-10 rounded-lg border border-border text-muted-foreground text-sm hover:bg-secondary active:scale-[0.98] transition-all duration-150"
