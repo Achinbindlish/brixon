@@ -1,11 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Search, ShoppingCart } from "lucide-react";
 import { articles, type Article } from "@/data/priceData";
+
+const WHATSAPP_NUMBER = "918076173815";
 
 const PriceLookup = () => {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<Article | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [orderQty, setOrderQty] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -37,7 +40,16 @@ const PriceLookup = () => {
     setQuery("");
     setResult(null);
     setNotFound(false);
+    setOrderQty("");
     inputRef.current?.focus();
+  };
+
+  const handlePlaceOrder = () => {
+    if (!result || !orderQty || Number(orderQty) <= 0) return;
+    const qty = Number(orderQty);
+    const total = result.price * qty;
+    const message = `🛒 *New Order*%0A%0AArticle: *${result.articleNumber}*%0A${result.description ? `Description: ${result.description}%0A` : ""}Price: ₹${result.price.toLocaleString("en-IN")}/${result.stockUnit}%0AQuantity: *${qty} ${result.stockUnit}*%0ATotal: *₹${total.toLocaleString("en-IN")}*`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
 
   return (
@@ -97,6 +109,33 @@ const PriceLookup = () => {
                 {result.stock > 0 ? `${result.stock} ${result.stockUnit}` : 'Out of stock'}
               </span>
             </div>
+
+            {/* Order section */}
+            <div className="pt-3 border-t border-border space-y-3">
+              <label className="text-sm font-medium text-foreground">Order Quantity ({result.stockUnit})</label>
+              <input
+                type="number"
+                min="1"
+                value={orderQty}
+                onChange={(e) => setOrderQty(e.target.value)}
+                placeholder={`Enter ${result.stockUnit}s`}
+                className="w-full h-12 px-4 rounded-xl border border-input bg-card text-foreground text-lg placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow"
+              />
+              {orderQty && Number(orderQty) > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Total: <span className="font-semibold text-foreground">₹{(result.price * Number(orderQty)).toLocaleString("en-IN")}</span>
+                </p>
+              )}
+              <button
+                onClick={handlePlaceOrder}
+                disabled={!orderQty || Number(orderQty) <= 0}
+                className="w-full h-12 rounded-xl bg-green-600 text-white font-medium text-base flex items-center justify-center gap-2 hover:bg-green-700 active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                Place Order via WhatsApp
+              </button>
+            </div>
+
             <button
               onClick={handleClear}
               className="w-full h-10 rounded-lg border border-border text-muted-foreground text-sm hover:bg-secondary active:scale-[0.98] transition-all duration-150"
