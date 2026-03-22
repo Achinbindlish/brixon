@@ -1,11 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Search, ShoppingCart } from "lucide-react";
 import { articles, type Article } from "@/data/priceData";
+
+const WHATSAPP_NUMBER = "918076173815";
 
 const PriceLookup = () => {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<Article | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [orderQty, setOrderQty] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
