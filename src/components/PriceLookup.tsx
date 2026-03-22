@@ -91,6 +91,12 @@ const PriceLookup = () => {
               ₹{result.price.toLocaleString("en-IN")}
             </p>
             <p className="text-sm text-muted-foreground">MRP with GST</p>
+            <div className="pt-3 border-t border-border flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Available Stock</span>
+              <span className={`text-lg font-semibold ${result.stock > 0 ? 'text-green-600' : 'text-destructive'}`}>
+                {result.stock > 0 ? `${result.stock} ${result.stockUnit}` : 'Out of stock'}
+              </span>
+            </div>
             <button
               onClick={handleClear}
               className="w-full h-10 rounded-lg border border-border text-muted-foreground text-sm hover:bg-secondary active:scale-[0.98] transition-all duration-150"

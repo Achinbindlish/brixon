@@ -3,40 +3,19 @@ export interface Article {
   description: string;
   price: number;
   unit: string;
+  stock: number;
+  stockUnit: string;
 }
 
 export const articles: Article[] = [
-  { articleNumber: "A592", description: "", price: 16800, unit: "pc" },
-  { articleNumber: "A754", description: "", price: 21000, unit: "pc" },
-  { articleNumber: "A770", description: "", price: 25200, unit: "pc" },
-  { articleNumber: "A851", description: "", price: 25200, unit: "pc" },
-  { articleNumber: "A913", description: "", price: 21000, unit: "pc" },
-  { articleNumber: "A927", description: "", price: 47250, unit: "pc" },
-  { articleNumber: "A955", description: "", price: 19425, unit: "pc" },
-  { articleNumber: "A959", description: "", price: 23100, unit: "pc" },
-  { articleNumber: "C079", description: "", price: 23100, unit: "pc" },
-  { articleNumber: "C123", description: "", price: 15750, unit: "pc" },
-  { articleNumber: "C154", description: "", price: 15750, unit: "pc" },
-  { articleNumber: "C189", description: "", price: 13650, unit: "pc" },
-  { articleNumber: "C190", description: "", price: 23100, unit: "pc" },
-  { articleNumber: "C194", description: "", price: 16800, unit: "pc" },
-  { articleNumber: "C195", description: "", price: 12600, unit: "pc" },
-  { articleNumber: "C200", description: "", price: 11550, unit: "pc" },
-  { articleNumber: "C201", description: "", price: 23100, unit: "pc" },
-  { articleNumber: "C207", description: "", price: 13650, unit: "pc" },
-  { articleNumber: "C208", description: "", price: 18900, unit: "pc" },
-  { articleNumber: "C209", description: "", price: 18900, unit: "pc" },
-  { articleNumber: "C211", description: "", price: 14700, unit: "pc" },
-  { articleNumber: "C217", description: "", price: 13650, unit: "pc" },
-  { articleNumber: "C218", description: "", price: 13650, unit: "pc" },
-  { articleNumber: "C219", description: "", price: 18900, unit: "pc" },
-  { articleNumber: "C222", description: "", price: 13650, unit: "pc" },
-  { articleNumber: "C223", description: "", price: 12600, unit: "pc" },
-  { articleNumber: "C226", description: "", price: 21000, unit: "pc" },
-  { articleNumber: "C227", description: "", price: 21000, unit: "pc" },
-  { articleNumber: "C228", description: "", price: 13650, unit: "pc" },
-  { articleNumber: "D088", description: "", price: 12600, unit: "pc" },
-  { articleNumber: "D089", description: "", price: 13650, unit: "pc" },
-  { articleNumber: "D090", description: "", price: 12600, unit: "pc" },
-  { articleNumber: "D091", description: "", price: 21000, unit: "pc" },
+  { articleNumber: "1", description: "Article 1", price: 100, unit: "pc", stock: 10, stockUnit: "meter" },
+  { articleNumber: "2", description: "Article 2", price: 200, unit: "pc", stock: 20, stockUnit: "meter" },
+  { articleNumber: "3", description: "Article 3", price: 300, unit: "pc", stock: 30, stockUnit: "meter" },
+  { articleNumber: "4", description: "Article 4", price: 400, unit: "pc", stock: 40, stockUnit: "meter" },
+  { articleNumber: "5", description: "Article 5", price: 500, unit: "pc", stock: 50, stockUnit: "meter" },
+  { articleNumber: "6", description: "Article 6", price: 600, unit: "pc", stock: 60, stockUnit: "meter" },
+  { articleNumber: "7", description: "Article 7", price: 700, unit: "pc", stock: 70, stockUnit: "meter" },
+  { articleNumber: "8", description: "Article 8", price: 800, unit: "pc", stock: 80, stockUnit: "meter" },
+  { articleNumber: "9", description: "Article 9", price: 900, unit: "pc", stock: 90, stockUnit: "meter" },
+  { articleNumber: "10", description: "Article 10", price: 1000, unit: "pc", stock: 100, stockUnit: "meter" },
 ];
