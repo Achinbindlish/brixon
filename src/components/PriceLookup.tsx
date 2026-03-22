@@ -40,7 +40,16 @@ const PriceLookup = () => {
     setQuery("");
     setResult(null);
     setNotFound(false);
+    setOrderQty("");
     inputRef.current?.focus();
+  };
+
+  const handlePlaceOrder = () => {
+    if (!result || !orderQty || Number(orderQty) <= 0) return;
+    const qty = Number(orderQty);
+    const total = result.price * qty;
+    const message = `🛒 *New Order*%0A%0AArticle: *${result.articleNumber}*%0A${result.description ? `Description: ${result.description}%0A` : ""}Price: ₹${result.price.toLocaleString("en-IN")}/${result.stockUnit}%0AQuantity: *${qty} ${result.stockUnit}*%0ATotal: *₹${total.toLocaleString("en-IN")}*`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
 
   return (
