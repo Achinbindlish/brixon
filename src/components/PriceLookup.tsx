@@ -286,19 +286,54 @@ const PriceLookup = () => {
                   );
                 })}
 
-                {/* Grand total & order */}
+                {/* Summary Table */}
                 {foundEntries.length > 0 && (
-                  <div className="bg-card rounded-xl border border-border p-4 space-y-3">
-                    {bulkGrandTotal > 0 && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-muted-foreground">Grand Total</span>
-                        <span className="text-xl font-bold text-foreground">₹{bulkGrandTotal.toLocaleString("en-IN")}</span>
-                      </div>
-                    )}
-                    <button onClick={handleBulkOrder} disabled={!hasValidBulkOrder}
-                      className="w-full h-12 rounded-xl bg-green-600 text-white font-medium text-base flex items-center justify-center gap-2 hover:bg-green-700 active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
-                      <ShoppingCart className="h-5 w-5" /> Place Bulk Order via WhatsApp
-                    </button>
+                  <div className="bg-card rounded-xl border border-border overflow-hidden">
+                    <div className="px-4 py-3 border-b border-border">
+                      <h3 className="text-sm font-semibold text-foreground">Order Summary</h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-border bg-muted/30">
+                            <th className="px-3 py-2 text-left font-medium text-muted-foreground">#</th>
+                            <th className="px-3 py-2 text-left font-medium text-muted-foreground">Article</th>
+                            <th className="px-3 py-2 text-right font-medium text-muted-foreground">Price</th>
+                            <th className="px-3 py-2 text-right font-medium text-muted-foreground">Qty</th>
+                            <th className="px-3 py-2 text-right font-medium text-muted-foreground">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {foundEntries.map((entry, i) => {
+                            const qty = Number(entry.orderQty) || 0;
+                            const lineTotal = entry.result!.price * qty;
+                            return (
+                              <tr key={i} className="border-b border-border last:border-0">
+                                <td className="px-3 py-2 text-muted-foreground">{i + 1}</td>
+                                <td className="px-3 py-2 text-foreground font-medium">{entry.result!.articleNumber}</td>
+                                <td className="px-3 py-2 text-right text-foreground">₹{entry.result!.price.toLocaleString("en-IN")}</td>
+                                <td className="px-3 py-2 text-right text-foreground">{qty > 0 ? qty : "—"}</td>
+                                <td className="px-3 py-2 text-right text-foreground font-medium">{qty > 0 ? `₹${lineTotal.toLocaleString("en-IN")}` : "—"}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                        {bulkGrandTotal > 0 && (
+                          <tfoot>
+                            <tr className="bg-muted/30">
+                              <td colSpan={4} className="px-3 py-2 text-right font-semibold text-foreground">Grand Total</td>
+                              <td className="px-3 py-2 text-right font-bold text-foreground text-base">₹{bulkGrandTotal.toLocaleString("en-IN")}</td>
+                            </tr>
+                          </tfoot>
+                        )}
+                      </table>
+                    </div>
+                    <div className="p-4 border-t border-border">
+                      <button onClick={handleBulkOrder} disabled={!hasValidBulkOrder}
+                        className="w-full h-12 rounded-xl bg-green-600 text-white font-medium text-base flex items-center justify-center gap-2 hover:bg-green-700 active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <ShoppingCart className="h-5 w-5" /> Place Bulk Order via WhatsApp
+                      </button>
+                    </div>
                   </div>
                 )}
 
