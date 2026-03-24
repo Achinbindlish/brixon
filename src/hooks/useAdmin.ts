@@ -5,12 +5,28 @@ export const useAdminOrders = () => {
   return useQuery({
     queryKey: ["admin-orders"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch orders
+      const { data: orders, error } = await supabase
         .from("orders")
-        .select("*, order_items(*), profiles!orders_user_id_fkey(full_name, phone)")
+        .select("*, order_items(*)")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+
+      // Fetch profiles for all user_ids
+      const userIds = [...new Set(orders?.map((o) => o.user_id).filter(Boolean) as string[])];
+      let profilesMap: Record<string, any> = {};
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, phone")
+          .in("user_id", userIds);
+        profilesMap = Object.fromEntries((profiles || []).map((p) => [p.user_id, p]));
+      }
+
+      return (orders || []).map((o) => ({
+        ...o,
+        profiles: profilesMap[o.user_id || ""] || null,
+      }));
     },
   });
 };
