@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Navigate, useNavigate } from "react-router-dom";
-import { Loader2, ArrowLeft, Package, ClipboardList, RefreshCw } from "lucide-react";
+import { Loader2, ArrowLeft, Package, ClipboardList, RefreshCw, Users } from "lucide-react";
 import AdminOrders from "@/components/admin/AdminOrders";
 import AdminArticles from "@/components/admin/AdminArticles";
 import SheetsSync from "@/components/admin/SheetsSync";
+import AdminUsers from "@/components/admin/AdminUsers";
 
 const Admin = () => {
   const { user, loading: authLoading } = useAuth();
