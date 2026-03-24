@@ -2,7 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, UserPlus, Eye, EyeOff } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 const AdminUsers = () => {
   const queryClient = useQueryClient();
@@ -49,7 +49,7 @@ const AdminUsers = () => {
       return data;
     },
     onSuccess: () => {
-      toast.success("User created successfully");
+      toast({ title: "User created successfully" });
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       setEmail("");
       setPassword("");
@@ -58,7 +58,7 @@ const AdminUsers = () => {
       setRole("salesperson");
     },
     onError: (err: any) => {
-      toast.error(err.message || "Failed to create user");
+      toast({ title: err.message || "Failed to create user", variant: "destructive" });
     },
   });
 
