@@ -137,11 +137,11 @@ const PriceLookup = () => {
       const qty = Number(e.orderQty);
       const total = e.result!.price * qty;
       grandTotal += total;
-      return `${i + 1}. *${e.result!.articleNumber}* - ${e.result!.description || ""}%0A   Price: ₹${e.result!.price.toLocaleString("en-IN")}/${e.result!.stockUnit} × ${qty} = *₹${total.toLocaleString("en-IN")}*`;
+      return `${i + 1}. *${e.result!.articleNumber}* - ${e.result!.description || ""}\n   Price: ₹${e.result!.price.toLocaleString("en-IN")}/${e.result!.stockUnit} × ${qty} = *₹${total.toLocaleString("en-IN")}*`;
     });
 
-    const message = `🛒 *Bulk Order (${orderItems.length} items)*%0A%0A${lines.join("%0A%0A")}%0A%0A----%0A*Grand Total: ₹${grandTotal.toLocaleString("en-IN")}*`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
+    const message = `🛒 *Bulk Order (${orderItems.length} items)*\n\n${lines.join("\n\n")}\n\n----\n*Grand Total: ₹${grandTotal.toLocaleString("en-IN")}*`;
+    window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
   };
 
   const handleBulkClear = () => {
