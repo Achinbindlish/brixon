@@ -18,6 +18,8 @@ type BulkEntry = {
 
 const PriceLookup = () => {
   const { signOut, user } = useAuth();
+  const { data: isAdmin } = useIsAdmin();
+  const navigate = useNavigate();
   const { data: articles = [], isLoading: articlesLoading } = useArticles();
   const placeOrder = usePlaceOrder();
 
