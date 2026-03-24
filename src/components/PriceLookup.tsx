@@ -1,22 +1,29 @@
 import { useState, useRef, useEffect } from "react";
-import { Search, ShoppingCart, Plus, Trash2, List } from "lucide-react";
-import { articles, type Article } from "@/data/priceData";
+import { Search, ShoppingCart, Plus, Trash2, List, LogOut, Loader2 } from "lucide-react";
+import { useArticles, type ArticleWithStock } from "@/hooks/useArticles";
+import { usePlaceOrder } from "@/hooks/useOrders";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
 
 const WHATSAPP_NUMBER = "918076173815";
 
 type BulkEntry = {
   articleNumber: string;
-  result: Article | null;
+  result: ArticleWithStock | null;
   notFound: boolean;
   orderQty: string;
 };
 
 const PriceLookup = () => {
+  const { signOut, user } = useAuth();
+  const { data: articles = [], isLoading: articlesLoading } = useArticles();
+  const placeOrder = usePlaceOrder();
+
   const [mode, setMode] = useState<"single" | "bulk">("single");
 
   // Single mode state
   const [query, setQuery] = useState("");
-  const [result, setResult] = useState<Article | null>(null);
+  const [result, setResult] = useState<ArticleWithStock | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [orderQty, setOrderQty] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -31,11 +38,14 @@ const PriceLookup = () => {
     inputRef.current?.focus();
   }, []);
 
+  const findArticle = (num: string) =>
+    articles.find((a) => a.articleNumber.toUpperCase() === num.toUpperCase());
+
   // Single mode handlers
   const handleSearch = () => {
     const trimmed = query.trim().toUpperCase();
     if (!trimmed) return;
-    const found = articles.find((a) => a.articleNumber.toUpperCase() === trimmed);
+    const found = findArticle(trimmed);
     if (found) { setResult(found); setNotFound(false); }
     else { setResult(null); setNotFound(true); }
   };
@@ -49,9 +59,19 @@ const PriceLookup = () => {
     inputRef.current?.focus();
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!result || !orderQty || Number(orderQty) <= 0) return;
     const qty = Number(orderQty);
+
+    // Save to DB
+    try {
+      await placeOrder.mutateAsync([{ article: result, quantity: qty }]);
+      toast({ title: "Order placed!", description: "Your order has been saved." });
+    } catch {
+      toast({ title: "Error", description: "Failed to save order", variant: "destructive" });
+    }
+
+    // Also send via WhatsApp
     const total = result.price * qty;
     const message = `🛒 *New Order*%0A%0AArticle: *${result.articleNumber}*%0A${result.description ? `Description: ${result.description}%0A` : ""}Price: ₹${result.price.toLocaleString("en-IN")}/${result.stockUnit}%0AQuantity: *${qty} ${result.stockUnit}*%0ATotal: *₹${total.toLocaleString("en-IN")}*`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
@@ -86,17 +106,28 @@ const PriceLookup = () => {
     const updated = bulkEntries.map((entry) => {
       const trimmed = entry.articleNumber.trim().toUpperCase();
       if (!trimmed) return { ...entry, result: null, notFound: false };
-      const found = articles.find((a) => a.articleNumber.toUpperCase() === trimmed);
+      const found = findArticle(trimmed);
       return { ...entry, result: found || null, notFound: !found };
     });
     setBulkEntries(updated);
     setBulkSearched(true);
   };
 
-  const handleBulkOrder = () => {
+  const handleBulkOrder = async () => {
     const orderItems = bulkEntries.filter((e) => e.result && e.orderQty && Number(e.orderQty) > 0);
     if (orderItems.length === 0) return;
 
+    // Save to DB
+    try {
+      await placeOrder.mutateAsync(
+        orderItems.map((e) => ({ article: e.result!, quantity: Number(e.orderQty) }))
+      );
+      toast({ title: "Bulk order placed!", description: `${orderItems.length} items saved.` });
+    } catch {
+      toast({ title: "Error", description: "Failed to save order", variant: "destructive" });
+    }
+
+    // Also send via WhatsApp
     let grandTotal = 0;
     const lines = orderItems.map((e, i) => {
       const qty = Number(e.orderQty);
@@ -121,12 +152,26 @@ const PriceLookup = () => {
   }, 0);
   const hasValidBulkOrder = foundEntries.some((e) => e.orderQty && Number(e.orderQty) > 0);
 
+  if (articlesLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-start px-4 py-8">
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Price Lookup</h1>
+          <div className="flex items-center justify-between">
+            <div className="w-10" />
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Price Lookup</h1>
+            <button onClick={signOut} className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-secondary transition-colors" title="Sign out">
+              <LogOut className="h-5 w-5" />
+            </button>
+          </div>
           <p className="text-muted-foreground text-sm">Enter article numbers to get prices</p>
         </div>
 
@@ -189,9 +234,9 @@ const PriceLookup = () => {
                   {orderQty && Number(orderQty) > 0 && (
                     <p className="text-sm text-muted-foreground">Total: <span className="font-semibold text-foreground">₹{(result.price * Number(orderQty)).toLocaleString("en-IN")}</span></p>
                   )}
-                  <button onClick={handlePlaceOrder} disabled={!orderQty || Number(orderQty) <= 0}
+                  <button onClick={handlePlaceOrder} disabled={!orderQty || Number(orderQty) <= 0 || placeOrder.isPending}
                     className="w-full h-12 rounded-xl bg-green-600 text-white font-medium text-base flex items-center justify-center gap-2 hover:bg-green-700 active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
-                    <ShoppingCart className="h-5 w-5" /> Place Order via WhatsApp
+                    <ShoppingCart className="h-5 w-5" /> {placeOrder.isPending ? "Placing..." : "Place Order via WhatsApp"}
                   </button>
                 </div>
                 <button onClick={handleClear} className="w-full h-10 rounded-lg border border-border text-muted-foreground text-sm hover:bg-secondary active:scale-[0.98] transition-all duration-150">New search</button>
@@ -211,7 +256,6 @@ const PriceLookup = () => {
         {/* Bulk Mode */}
         {mode === "bulk" && (
           <div className="space-y-4">
-            {/* Input rows */}
             <div className="space-y-2">
               {bulkEntries.map((entry, i) => (
                 <div key={i} className="flex items-center gap-2">
@@ -243,7 +287,6 @@ const PriceLookup = () => {
               Look up all prices
             </button>
 
-            {/* Bulk Results */}
             {bulkSearched && (
               <div className="space-y-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
                 {bulkEntries.map((entry, i) => {
@@ -286,7 +329,6 @@ const PriceLookup = () => {
                   );
                 })}
 
-                {/* Summary Table */}
                 {foundEntries.length > 0 && (
                   <div className="bg-card rounded-xl border border-border overflow-hidden">
                     <div className="px-4 py-3 border-b border-border">
@@ -329,9 +371,9 @@ const PriceLookup = () => {
                       </table>
                     </div>
                     <div className="p-4 border-t border-border">
-                      <button onClick={handleBulkOrder} disabled={!hasValidBulkOrder}
+                      <button onClick={handleBulkOrder} disabled={!hasValidBulkOrder || placeOrder.isPending}
                         className="w-full h-12 rounded-xl bg-green-600 text-white font-medium text-base flex items-center justify-center gap-2 hover:bg-green-700 active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <ShoppingCart className="h-5 w-5" /> Place Bulk Order via WhatsApp
+                        <ShoppingCart className="h-5 w-5" /> {placeOrder.isPending ? "Placing..." : "Place Bulk Order via WhatsApp"}
                       </button>
                     </div>
                   </div>
