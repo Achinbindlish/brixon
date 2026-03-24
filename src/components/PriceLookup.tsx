@@ -172,9 +172,16 @@ const PriceLookup = () => {
           <div className="flex items-center justify-between">
             <div className="w-10" />
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">Price Lookup</h1>
-            <button onClick={signOut} className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-secondary transition-colors" title="Sign out">
-              <LogOut className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-1">
+              {isAdmin && (
+                <button onClick={() => navigate("/admin")} className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-secondary transition-colors" title="Admin Dashboard">
+                  <Settings className="h-5 w-5" />
+                </button>
+              )}
+              <button onClick={signOut} className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-secondary transition-colors" title="Sign out">
+                <LogOut className="h-5 w-5" />
+              </button>
+            </div>
           </div>
           <p className="text-muted-foreground text-sm">Enter article numbers to get prices</p>
         </div>
