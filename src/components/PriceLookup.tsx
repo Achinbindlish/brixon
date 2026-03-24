@@ -179,9 +179,11 @@ const PriceLookup = () => {
                   <Settings className="h-5 w-5" />
                 </button>
               )}
-              <button onClick={signOut} className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-secondary transition-colors" title="Sign out">
-                <LogOut className="h-5 w-5" />
-              </button>
+              {isLoggedIn && (
+                <button onClick={signOut} className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-secondary transition-colors" title="Sign out">
+                  <LogOut className="h-5 w-5" />
+                </button>
+              )}
             </div>
           </div>
           <p className="text-muted-foreground text-sm">Enter article numbers to get prices</p>
