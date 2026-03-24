@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Search, ShoppingCart, Plus, Trash2, List, LogOut, Loader2 } from "lucide-react";
+import { Search, ShoppingCart, Plus, Trash2, List, LogOut, Loader2, Settings } from "lucide-react";
 import { useArticles, type ArticleWithStock } from "@/hooks/useArticles";
 import { usePlaceOrder } from "@/hooks/useOrders";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
 const WHATSAPP_NUMBER = "918076173815";
