@@ -49,7 +49,7 @@ const AdminUsers = () => {
       return data;
     },
     onSuccess: () => {
-      toast.success("User created successfully");
+      toast({ title: "User created successfully" });
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       setEmail("");
       setPassword("");
