@@ -124,17 +124,19 @@ const PriceLookup = () => {
     const orderItems = bulkEntries.filter((e) => e.result && e.orderQty && Number(e.orderQty) > 0);
     if (orderItems.length === 0) return;
 
-    // Save to DB
-    try {
-      await placeOrder.mutateAsync(
-        orderItems.map((e) => ({ article: e.result!, quantity: Number(e.orderQty) }))
-      );
-      toast({ title: "Bulk order placed!", description: `${orderItems.length} items saved.` });
-    } catch {
-      toast({ title: "Error", description: "Failed to save order", variant: "destructive" });
+    // Save to DB only if logged in
+    if (isLoggedIn) {
+      try {
+        await placeOrder.mutateAsync(
+          orderItems.map((e) => ({ article: e.result!, quantity: Number(e.orderQty) }))
+        );
+        toast({ title: "Bulk order placed!", description: `${orderItems.length} items saved.` });
+      } catch {
+        toast({ title: "Error", description: "Failed to save order", variant: "destructive" });
+      }
     }
 
-    // Also send via WhatsApp
+    // Send via WhatsApp
     let grandTotal = 0;
     const lines = orderItems.map((e, i) => {
       const qty = Number(e.orderQty);
