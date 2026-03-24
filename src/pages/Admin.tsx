@@ -11,7 +11,7 @@ import AdminUsers from "@/components/admin/AdminUsers";
 const Admin = () => {
   const { user, loading: authLoading } = useAuth();
   const { data: isAdmin, isLoading: roleLoading } = useIsAdmin();
-  const [tab, setTab] = useState<"orders" | "articles" | "sync">("orders");
+  const [tab, setTab] = useState<"orders" | "articles" | "sync" | "users">("orders");
   const navigate = useNavigate();
 
   if (authLoading || roleLoading) {
