@@ -65,6 +65,7 @@ const Admin = () => {
         {tab === "orders" && <AdminOrders />}
         {tab === "articles" && <AdminArticles />}
         {tab === "sync" && <SheetsSync />}
+        {tab === "users" && <AdminUsers />}
       </div>
     </div>
   );
