@@ -22,6 +22,7 @@ const PriceLookup = () => {
   const navigate = useNavigate();
   const { data: articles = [], isLoading: articlesLoading } = useArticles();
   const placeOrder = usePlaceOrder();
+  const isLoggedIn = !!user;
 
   const [mode, setMode] = useState<"single" | "bulk">("single");
 
