@@ -27,8 +27,9 @@ const Admin = () => {
 
   const tabs = [
     { id: "orders" as const, label: "Orders", icon: ClipboardList },
-    { id: "articles" as const, label: "Articles & Stock", icon: Package },
-    { id: "sync" as const, label: "Sheets Sync", icon: RefreshCw },
+    { id: "articles" as const, label: "Articles", icon: Package },
+    { id: "sync" as const, label: "Sync", icon: RefreshCw },
+    { id: "users" as const, label: "Users", icon: Users },
   ];
 
   return (
