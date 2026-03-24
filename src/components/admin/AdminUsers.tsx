@@ -58,7 +58,7 @@ const AdminUsers = () => {
       setRole("salesperson");
     },
     onError: (err: any) => {
-      toast.error(err.message || "Failed to create user");
+      toast({ title: err.message || "Failed to create user", variant: "destructive" });
     },
   });
 
