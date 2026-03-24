@@ -22,6 +22,7 @@ const PriceLookup = () => {
   const navigate = useNavigate();
   const { data: articles = [], isLoading: articlesLoading } = useArticles();
   const placeOrder = usePlaceOrder();
+  const isLoggedIn = !!user;
 
   const [mode, setMode] = useState<"single" | "bulk">("single");
 
@@ -67,15 +68,17 @@ const PriceLookup = () => {
     if (!result || !orderQty || Number(orderQty) <= 0) return;
     const qty = Number(orderQty);
 
-    // Save to DB
-    try {
-      await placeOrder.mutateAsync([{ article: result, quantity: qty }]);
-      toast({ title: "Order placed!", description: "Your order has been saved." });
-    } catch {
-      toast({ title: "Error", description: "Failed to save order", variant: "destructive" });
+    // Save to DB only if logged in
+    if (isLoggedIn) {
+      try {
+        await placeOrder.mutateAsync([{ article: result, quantity: qty }]);
+        toast({ title: "Order placed!", description: "Your order has been saved." });
+      } catch {
+        toast({ title: "Error", description: "Failed to save order", variant: "destructive" });
+      }
     }
 
-    // Also send via WhatsApp
+    // Send via WhatsApp
     const total = result.price * qty;
     const message = `🛒 *New Order*\n\nArticle: *${result.articleNumber}*\n${result.description ? `Description: ${result.description}\n` : ""}Price: ₹${result.price.toLocaleString("en-IN")}/${result.stockUnit}\nQuantity: *${qty} ${result.stockUnit}*\nTotal: *₹${total.toLocaleString("en-IN")}*`;
     window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
@@ -121,17 +124,19 @@ const PriceLookup = () => {
     const orderItems = bulkEntries.filter((e) => e.result && e.orderQty && Number(e.orderQty) > 0);
     if (orderItems.length === 0) return;
 
-    // Save to DB
-    try {
-      await placeOrder.mutateAsync(
-        orderItems.map((e) => ({ article: e.result!, quantity: Number(e.orderQty) }))
-      );
-      toast({ title: "Bulk order placed!", description: `${orderItems.length} items saved.` });
-    } catch {
-      toast({ title: "Error", description: "Failed to save order", variant: "destructive" });
+    // Save to DB only if logged in
+    if (isLoggedIn) {
+      try {
+        await placeOrder.mutateAsync(
+          orderItems.map((e) => ({ article: e.result!, quantity: Number(e.orderQty) }))
+        );
+        toast({ title: "Bulk order placed!", description: `${orderItems.length} items saved.` });
+      } catch {
+        toast({ title: "Error", description: "Failed to save order", variant: "destructive" });
+      }
     }
 
-    // Also send via WhatsApp
+    // Send via WhatsApp
     let grandTotal = 0;
     const lines = orderItems.map((e, i) => {
       const qty = Number(e.orderQty);
@@ -178,9 +183,11 @@ const PriceLookup = () => {
                   <Settings className="h-5 w-5" />
                 </button>
               )}
-              <button onClick={signOut} className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-secondary transition-colors" title="Sign out">
-                <LogOut className="h-5 w-5" />
-              </button>
+              {isLoggedIn && (
+                <button onClick={signOut} className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-secondary transition-colors" title="Sign out">
+                  <LogOut className="h-5 w-5" />
+                </button>
+              )}
             </div>
           </div>
           <p className="text-muted-foreground text-sm">Enter article numbers to get prices</p>
