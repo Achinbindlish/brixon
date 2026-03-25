@@ -152,8 +152,21 @@ const PriceLookup = () => {
   return (
     <div className="min-h-screen bg-background border-l-[24px] border-l-accent-orange">
       <main className="w-full max-w-lg mx-auto px-4 sm:px-6 py-6 flex flex-col min-h-screen">
+        {/* Top bar */}
+        <div className="flex items-center justify-between pt-4 pb-2">
+          {isAdmin && (
+            <button onClick={() => navigate("/admin")} className="h-9 w-9 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+              <Settings className="h-4.5 w-4.5" />
+            </button>
+          )}
+          {!isAdmin && <div />}
+          <button onClick={signOut} className="h-9 w-9 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title="Logout">
+            <LogOut className="h-4.5 w-4.5" />
+          </button>
+        </div>
+
         {/* Hero / Branding */}
-        <div className="flex-shrink-0 flex flex-col items-center justify-center pt-8 pb-6">
+        <div className="flex-shrink-0 flex flex-col items-center justify-center pt-4 pb-6">
           <img src={brixonLogo} alt="Brixon" className="h-20 w-auto object-contain mb-5" />
           <h1 className="text-2xl font-bold text-foreground leading-tight text-center" style={{ fontFamily: "'ED Lavonia', cursive" }}>
             Good to see you partner,
