@@ -32,9 +32,9 @@ const PriceLookup = () => {
   const [orderQty, setOrderQty] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [bulkEntries, setBulkEntries] = useState<BulkEntry[]>([
-    { articleNumber: "", result: null, notFound: false, orderQty: "" },
-  ]);
+  const [bulkEntries, setBulkEntries] = useState<BulkEntry[]>(
+    Array.from({ length: 10 }, () => ({ articleNumber: "", result: null, notFound: false, orderQty: "" }))
+  );
   const [bulkSearched, setBulkSearched] = useState(false);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
