@@ -151,7 +151,7 @@ const PriceLookup = () => {
 
   return (
     <div className="min-h-screen bg-background border-l-[24px] border-l-accent-orange">
-      <main className="w-full max-w-lg mx-auto px-4 sm:px-6 space-y-5 flex flex-col min-h-screen" style={{ marginTop: '-20px' }}>
+      <main className="w-full max-w-lg mx-auto px-4 sm:px-6 space-y-5 flex flex-col min-h-screen" <main className="w-full max-w-lg mx-auto px-4 sm:px-6 space-y-5 flex flex-col min-h-screen" style={{ marginTop: '-40px' }}>>
         <div className="flex-1 min-h-[50%] flex flex-col items-center justify-center px-2">
           <img src={brixonLogo} alt="Brixon" className="h-24 w-auto object-contain mb-6" />
           <h1 className="text-2xl font-bold text-foreground leading-tight text-center">Good to see you partner,</h1>
