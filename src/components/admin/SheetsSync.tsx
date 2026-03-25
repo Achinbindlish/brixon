@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { RefreshCw, Loader2, ExternalLink, Clock, Radio, Wifi, WifiOff } from "lucide-react";
+import { RefreshCw, Loader2, ExternalLink, Clock, Radio, Wifi, WifiOff, Save, Timer } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const useLastSynced = () => {
@@ -21,6 +21,23 @@ const useLastSynced = () => {
   });
 };
 
+const useSyncSettings = () => {
+  return useQuery({
+    queryKey: ["sync-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sync_settings")
+        .select("setting_key, setting_value");
+      if (error) throw error;
+      const map: Record<string, string> = {};
+      for (const s of data || []) {
+        map[s.setting_key] = s.setting_value;
+      }
+      return map;
+    },
+  });
+};
+
 const formatTimestamp = (ts: string | null) => {
   if (!ts) return "Never";
   const d = new Date(ts);
@@ -30,11 +47,23 @@ const formatTimestamp = (ts: string | null) => {
 const SheetsSync = () => {
   const [priceSheetUrl, setPriceSheetUrl] = useState("");
   const [stockSheetUrl, setStockSheetUrl] = useState("");
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(false);
   const [syncing, setSyncing] = useState<"" | "prices" | "stock">("");
+  const [saving, setSaving] = useState(false);
   const [realtimeActive, setRealtimeActive] = useState(false);
   const [lastRealtimeEvent, setLastRealtimeEvent] = useState<string | null>(null);
   const { data: lastSynced, refetch: refetchSynced } = useLastSynced();
+  const { data: syncSettings, refetch: refetchSettings } = useSyncSettings();
   const queryClient = useQueryClient();
+
+  // Load saved settings
+  useEffect(() => {
+    if (syncSettings) {
+      setPriceSheetUrl(syncSettings["prices_csv_url"] || "");
+      setStockSheetUrl(syncSettings["stock_csv_url"] || "");
+      setAutoSyncEnabled(syncSettings["auto_sync_enabled"] === "true");
+    }
+  }, [syncSettings]);
 
   useEffect(() => {
     if (!realtimeActive) return;
@@ -59,6 +88,30 @@ const SheetsSync = () => {
       supabase.removeChannel(channel);
     };
   }, [realtimeActive, refetchSynced, queryClient]);
+
+  const handleSaveSettings = async () => {
+    setSaving(true);
+    try {
+      const updates = [
+        { setting_key: "prices_csv_url", setting_value: priceSheetUrl },
+        { setting_key: "stock_csv_url", setting_value: stockSheetUrl },
+        { setting_key: "auto_sync_enabled", setting_value: autoSyncEnabled ? "true" : "false" },
+      ];
+      for (const u of updates) {
+        const { error } = await supabase
+          .from("sync_settings")
+          .update({ setting_value: u.setting_value, updated_at: new Date().toISOString() })
+          .eq("setting_key", u.setting_key);
+        if (error) throw error;
+      }
+      toast({ title: "Settings saved", description: autoSyncEnabled ? "Auto-sync is enabled (runs every hour)" : "Auto-sync is disabled" });
+      refetchSettings();
+    } catch (err: any) {
+      toast({ title: "Failed to save", description: err.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleSync = async (type: "prices" | "stock") => {
     const url = type === "prices" ? priceSheetUrl : stockSheetUrl;
@@ -103,16 +156,37 @@ const SheetsSync = () => {
         </div>
       </div>
 
-      {/* Realtime + Last Synced Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Auto-Sync + Realtime + Last Synced */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Auto-Sync */}
+        <div className="bg-card rounded-lg border border-border p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <Timer className="h-4 w-4 text-primary shrink-0" />
+            <h3 className="text-sm font-semibold text-foreground">Auto-Sync</h3>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Automatically sync every hour from saved URLs
+          </p>
+          <button
+            onClick={() => setAutoSyncEnabled(!autoSyncEnabled)}
+            className={`w-full h-9 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-all ${
+              autoSyncEnabled
+                ? "bg-green-600 text-white hover:bg-green-700"
+                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+            }`}
+          >
+            {autoSyncEnabled ? "Enabled" : "Disabled"}
+          </button>
+        </div>
+
         {/* Realtime Sync */}
         <div className="bg-card rounded-lg border border-border p-4 space-y-3">
           <div className="flex items-center gap-2">
             <Radio className="h-4 w-4 text-primary shrink-0" />
-            <h3 className="text-sm font-semibold text-foreground">Realtime Sync</h3>
+            <h3 className="text-sm font-semibold text-foreground">Realtime</h3>
           </div>
           <p className="text-xs text-muted-foreground">
-            Auto-update when Sheets pushes data via webhook
+            Auto-update when data is pushed via webhook
           </p>
           <button
             onClick={() => setRealtimeActive(!realtimeActive)}
@@ -125,7 +199,7 @@ const SheetsSync = () => {
             {realtimeActive ? (
               <><Wifi className="h-3.5 w-3.5" /> Listening</>
             ) : (
-              <><WifiOff className="h-3.5 w-3.5" /> Start Realtime</>
+              <><WifiOff className="h-3.5 w-3.5" /> Start</>
             )}
           </button>
           {realtimeActive && (
@@ -134,7 +208,7 @@ const SheetsSync = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
               </span>
-              <span>Last event: {lastRealtimeEvent ? formatTimestamp(lastRealtimeEvent) : "Waiting..."}</span>
+              <span>Last: {lastRealtimeEvent ? formatTimestamp(lastRealtimeEvent) : "Waiting..."}</span>
             </div>
           )}
         </div>
@@ -204,6 +278,16 @@ const SheetsSync = () => {
           </button>
         </div>
       </div>
+
+      {/* Save Settings Button */}
+      <button
+        onClick={handleSaveSettings}
+        disabled={saving}
+        className="w-full h-10 rounded-md bg-primary text-primary-foreground text-sm font-medium flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-all"
+      >
+        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+        {saving ? "Saving..." : "Save Settings"}
+      </button>
     </div>
   );
 };
