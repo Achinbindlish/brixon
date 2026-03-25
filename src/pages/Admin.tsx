@@ -46,18 +46,19 @@ const Admin = () => {
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-4 py-6 space-y-5">
+      <div className="w-full px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-5 max-w-5xl mx-auto">
         {/* Tabs */}
         <div className="flex border border-border rounded-md overflow-hidden">
           {tabs.map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`flex-1 h-9 text-sm font-medium flex items-center justify-center gap-1.5 transition-colors ${
+              className={`flex-1 h-9 text-xs sm:text-sm font-medium flex items-center justify-center gap-1 sm:gap-1.5 transition-colors ${
                 tab === t.id ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"
               }`}
             >
-              <t.icon className="h-3.5 w-3.5" /> {t.label}
+              <t.icon className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{t.label}</span>
             </button>
           ))}
         </div>
