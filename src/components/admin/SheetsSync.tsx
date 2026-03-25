@@ -75,6 +75,24 @@ const SheetsSync = () => {
         </div>
       </div>
 
+      {/* Last Synced */}
+      <div className="bg-card rounded-xl border border-border p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Clock className="h-4 w-4 shrink-0" />
+          <span className="text-xs font-medium">Last synced</span>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-6 text-xs">
+          <span className="text-foreground">
+            <span className="text-muted-foreground">Prices:</span>{" "}
+            {formatTimestamp(lastSynced?.prices ?? null)}
+          </span>
+          <span className="text-foreground">
+            <span className="text-muted-foreground">Stock:</span>{" "}
+            {formatTimestamp(lastSynced?.stock ?? null)}
+          </span>
+        </div>
+      </div>
+
       {/* Price List Sync */}
       <div className="bg-card rounded-xl border border-border p-5 space-y-3">
         <h3 className="text-sm font-semibold text-foreground">Price List Sheet</h3>
