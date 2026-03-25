@@ -17,6 +17,7 @@ const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
+  const [ready, setReady] = useState(false);
 
   if (loading) {
     return (
@@ -27,26 +28,29 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) return <Navigate to="/auth" replace />;
-  return <>{children}</>;
+
+  return (
+    <>
+      {!ready && <Preloader onComplete={() => setReady(true)} />}
+      {ready && children}
+    </>
+  );
 };
 
 const App = () => {
-  const [ready, setReady] = useState(false);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
-          {!ready && <Preloader onComplete={() => setReady(true)} />}
           <Toaster />
           <Sonner />
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
-              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<Navigate to="/auth" replace />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
