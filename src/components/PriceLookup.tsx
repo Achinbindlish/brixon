@@ -150,7 +150,7 @@ const PriceLookup = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background border-l-[24px] border-l-accent-orange">
       {/* Header */}
       <header className="border-b border-border bg-primary sticky top-0 z-50">
         <div className="w-full px-4 sm:px-6 h-14 flex items-center justify-between">

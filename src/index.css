@@ -4,7 +4,8 @@
 
 @layer base {
   :root {
-    --background: 35 56% 93%;
+    --background: 38 40% 96%;
+    --accent-orange: 25 95% 53%;
     --foreground: 216 75% 15%;
 
     --card: 36 50% 97%;
