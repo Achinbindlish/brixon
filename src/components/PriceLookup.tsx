@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, ShoppingCart, Plus, Trash2, List, LogOut, Loader2, Settings } from "lucide-react";
-import brixonLogo from "@/assets/brixon-logo-white.png";
+import brixonLogo from "@/assets/brixon-logo.png";
 import { useArticles, type ArticleWithStock } from "@/hooks/useArticles";
 import { usePlaceOrder } from "@/hooks/useOrders";
 import { useAuth } from "@/hooks/useAuth";
