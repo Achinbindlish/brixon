@@ -1,7 +1,31 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { RefreshCw, Loader2, ExternalLink } from "lucide-react";
+import { RefreshCw, Loader2, ExternalLink, Clock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+
+const useLastSynced = () => {
+  return useQuery({
+    queryKey: ["last-synced"],
+    queryFn: async () => {
+      const [{ data: artData }, { data: stockData }] = await Promise.all([
+        supabase.from("articles").select("updated_at").order("updated_at", { ascending: false }).limit(1),
+        supabase.from("stock").select("updated_at").order("updated_at", { ascending: false }).limit(1),
+      ]);
+      return {
+        prices: artData?.[0]?.updated_at || null,
+        stock: stockData?.[0]?.updated_at || null,
+      };
+    },
+    refetchInterval: 30000,
+  });
+};
+
+const formatTimestamp = (ts: string | null) => {
+  if (!ts) return "Never";
+  const d = new Date(ts);
+  return d.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+};
 
 const SheetsSync = () => {
   const [priceSheetUrl, setPriceSheetUrl] = useState("");
