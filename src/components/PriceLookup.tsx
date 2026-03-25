@@ -74,7 +74,6 @@ const PriceLookup = () => {
   };
 
   const addBulkEntry = () => {
-    if (bulkEntries.length >= 10) return;
     setBulkEntries([...bulkEntries, { articleNumber: "", result: null, notFound: false, orderQty: "" }]);
   };
 
