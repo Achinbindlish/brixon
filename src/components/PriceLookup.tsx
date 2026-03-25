@@ -155,7 +155,7 @@ const PriceLookup = () => {
       {/* Header */}
       <header className="border-b border-border bg-primary sticky top-0 z-50">
         <div className="w-full px-4 sm:px-6 h-14 flex items-center justify-between">
-          <img src={brixonLogo} alt="Brixon" className="h-7 sm:h-8 w-auto object-contain" />
+          <img src={brixonLogo} alt="Brixon" className="h-9 sm:h-10 md:h-11 w-auto object-contain" />
           <div className="flex items-center gap-1">
             {isAdmin && (
               <button onClick={() => navigate("/admin")} className="p-2 rounded-md text-primary-foreground/60 hover:text-primary-foreground transition-colors">
