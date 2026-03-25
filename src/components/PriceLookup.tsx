@@ -154,8 +154,8 @@ const PriceLookup = () => {
       <main className="w-full max-w-lg mx-auto px-4 sm:px-6 space-y-5 flex flex-col min-h-screen" style={{ marginTop: '-40px' }}>
         <div className="flex-1 min-h-[50%] flex flex-col items-center justify-center px-2">
           <img src={brixonLogo} alt="Brixon" className="h-24 w-auto object-contain mb-6" />
-          <h1 className="text-2xl font-bold text-foreground leading-tight text-center">Good to see you partner,</h1>
-          <p className="text-xl text-muted-foreground mt-1 text-center">What are you looking for today?</p>
+          <h1 className="text-2xl font-bold text-foreground leading-tight text-center" style={{ fontFamily: "'ED Lavonia', cursive" }}>Good to see you partner,</h1>
+          <p className="text-xl text-muted-foreground mt-1 text-center" style={{ fontFamily: "'Montserrat', sans-serif" }}>What are you looking for today?</p>
         </div>
         {/* Mode toggle */}
         <div className="flex border border-border rounded-md overflow-hidden">
