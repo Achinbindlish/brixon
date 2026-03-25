@@ -151,17 +151,23 @@ const PriceLookup = () => {
 
   return (
     <div className="min-h-screen bg-background border-l-[24px] border-l-accent-orange">
-      <main className="w-full max-w-lg mx-auto px-4 sm:px-6 space-y-5 flex flex-col min-h-screen" style={{ marginTop: '-40px' }}>
-        <div className="flex-1 min-h-[50%] flex flex-col items-center justify-center px-2">
-          <img src={brixonLogo} alt="Brixon" className="h-24 w-auto object-contain mb-6" />
-          <h1 className="text-2xl font-bold text-foreground leading-tight text-right whitespace-nowrap" style={{ fontFamily: "'ED Lavonia', cursive" }}>Good to see you partner,</h1>
-          <p className="text-xl text-muted-foreground mt-1 text-right whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>What are you looking for today?</p>
+      <main className="w-full max-w-lg mx-auto px-4 sm:px-6 py-6 flex flex-col min-h-screen">
+        {/* Hero / Branding */}
+        <div className="flex-shrink-0 flex flex-col items-center justify-center pt-8 pb-6">
+          <img src={brixonLogo} alt="Brixon" className="h-20 w-auto object-contain mb-5" />
+          <h1 className="text-2xl font-bold text-foreground leading-tight text-center" style={{ fontFamily: "'ED Lavonia', cursive" }}>
+            Good to see you partner,
+          </h1>
+          <p className="text-lg text-muted-foreground mt-1 text-center" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+            What are you looking for today?
+          </p>
         </div>
+
         {/* Mode toggle */}
-        <div className="flex border border-border rounded-md overflow-hidden">
+        <div className="flex border border-border rounded-md overflow-hidden mb-5">
           <button
             onClick={() => setMode("single")}
-            className={`flex-1 h-9 text-sm font-medium flex items-center justify-center gap-1.5 transition-colors ${
+            className={`flex-1 h-10 text-sm font-medium flex items-center justify-center gap-1.5 transition-colors ${
               mode === "single" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -169,7 +175,7 @@ const PriceLookup = () => {
           </button>
           <button
             onClick={() => setMode("bulk")}
-            className={`flex-1 h-9 text-sm font-medium flex items-center justify-center gap-1.5 transition-colors ${
+            className={`flex-1 h-10 text-sm font-medium flex items-center justify-center gap-1.5 transition-colors ${
               mode === "bulk" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -198,7 +204,7 @@ const PriceLookup = () => {
             </button>
 
             {result && (
-              <div className="bg-card rounded-md border border-border p-5 space-y-4">
+              <div className="bg-card rounded-lg border border-border p-5 space-y-4">
                 <div className="flex items-baseline justify-between">
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{result.articleNumber}</span>
                 </div>
@@ -238,7 +244,7 @@ const PriceLookup = () => {
             )}
 
             {notFound && (
-              <div className="bg-card rounded-md border border-border p-5 text-center space-y-2">
+              <div className="bg-card rounded-lg border border-border p-5 text-center space-y-2">
                 <p className="text-sm text-foreground font-medium">Article not found</p>
                 <p className="text-xs text-muted-foreground">Check the article number and try again</p>
                 <button onClick={handleClear} className="mt-2 h-8 px-4 rounded-md border border-border text-muted-foreground text-xs hover:text-foreground hover:bg-secondary transition-colors">
@@ -255,7 +261,7 @@ const PriceLookup = () => {
             <div className="space-y-2">
               {bulkEntries.map((entry, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground w-4 text-right shrink-0">{i + 1}.</span>
+                  <span className="text-xs text-muted-foreground w-5 text-right shrink-0">{i + 1}.</span>
                   <input
                     type="text"
                     value={entry.articleNumber}
@@ -287,7 +293,7 @@ const PriceLookup = () => {
                   if (!entry.articleNumber.trim()) return null;
                   if (entry.notFound) {
                     return (
-                      <div key={i} className="bg-card rounded-md border border-border p-3 flex items-center justify-between">
+                      <div key={i} className="bg-card rounded-lg border border-border p-3 flex items-center justify-between">
                         <span className="text-xs text-muted-foreground">#{entry.articleNumber}</span>
                         <span className="text-xs text-destructive font-medium">Not found</span>
                       </div>
@@ -295,31 +301,29 @@ const PriceLookup = () => {
                   }
                   if (!entry.result) return null;
                   return (
-                    <div key={i} className="bg-card rounded-md border border-border p-3 space-y-2">
-                      <div className="flex items-baseline justify-between">
-                        <div>
+                    <div key={i} className="bg-card rounded-lg border border-border p-4 space-y-3">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <div className="min-w-0">
                           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{entry.result.articleNumber}</span>
-                          {entry.result.description && <p className="text-sm text-foreground">{entry.result.description}</p>}
+                          {entry.result.description && <p className="text-sm text-foreground truncate">{entry.result.description}</p>}
                         </div>
-                        <p className="text-xl font-bold tracking-tight text-foreground">₹{entry.result.price.toLocaleString("en-IN")}</p>
+                        <p className="text-xl font-bold tracking-tight text-foreground shrink-0">₹{entry.result.price.toLocaleString("en-IN")}</p>
                       </div>
-                      <div className="space-y-0.5">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Stock</span>
-                          <span className={entry.result.stock > 0 ? "text-green-700 font-semibold" : "text-destructive font-semibold"}>
-                            {entry.result.stock > 0 ? `${entry.result.stock} ${entry.result.stockUnit}` : "Out of stock"}
-                          </span>
-                        </div>
-                        {entry.result.stockBreakdown.length > 1 && (
-                          <p className="text-xs text-muted-foreground text-right">
-                            {entry.result.stockBreakdown.join(" + ")}
-                          </p>
-                        )}
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Stock</span>
+                        <span className={entry.result.stock > 0 ? "text-green-700 font-semibold" : "text-destructive font-semibold"}>
+                          {entry.result.stock > 0 ? `${entry.result.stock} ${entry.result.stockUnit}` : "Out of stock"}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      {entry.result.stockBreakdown.length > 1 && (
+                        <p className="text-xs text-muted-foreground text-right">
+                          {entry.result.stockBreakdown.join(" + ")}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 pt-1">
                         <input type="number" min="1" value={entry.orderQty} onChange={(e) => updateBulkQty(i, e.target.value)}
                           placeholder={`Qty (${entry.result.stockUnit})`}
-                          className="flex-1 h-8 px-2 rounded-md border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-shadow" />
+                          className="flex-1 h-9 px-3 rounded-md border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-shadow" />
                         {entry.orderQty && Number(entry.orderQty) > 0 && (
                           <span className="text-xs font-semibold text-foreground whitespace-nowrap">
                             ₹{(entry.result.price * Number(entry.orderQty)).toLocaleString("en-IN")}
@@ -331,19 +335,19 @@ const PriceLookup = () => {
                 })}
 
                 {foundEntries.length > 0 && (
-                  <div className="bg-card rounded-md border border-border overflow-hidden">
-                    <div className="px-3 py-2 border-b border-border">
+                  <div className="bg-card rounded-lg border border-border overflow-hidden">
+                    <div className="px-4 py-3 border-b border-border">
                       <h3 className="text-xs font-semibold text-foreground uppercase tracking-wide">Order Summary</h3>
                     </div>
                     <div className="overflow-x-auto">
                       <table className="w-full text-xs">
                         <thead>
                           <tr className="border-b border-border">
-                            <th className="px-3 py-2 text-left font-medium text-muted-foreground">#</th>
-                            <th className="px-3 py-2 text-left font-medium text-muted-foreground">Article</th>
-                            <th className="px-3 py-2 text-right font-medium text-muted-foreground">Price</th>
-                            <th className="px-3 py-2 text-right font-medium text-muted-foreground">Qty</th>
-                            <th className="px-3 py-2 text-right font-medium text-muted-foreground">Total</th>
+                            <th className="px-4 py-2 text-left font-medium text-muted-foreground">#</th>
+                            <th className="px-4 py-2 text-left font-medium text-muted-foreground">Article</th>
+                            <th className="px-4 py-2 text-right font-medium text-muted-foreground">Price</th>
+                            <th className="px-4 py-2 text-right font-medium text-muted-foreground">Qty</th>
+                            <th className="px-4 py-2 text-right font-medium text-muted-foreground">Total</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -352,11 +356,11 @@ const PriceLookup = () => {
                             const lineTotal = entry.result!.price * qty;
                             return (
                               <tr key={i} className="border-b border-border last:border-0">
-                                <td className="px-3 py-2 text-muted-foreground">{i + 1}</td>
-                                <td className="px-3 py-2 text-foreground font-medium">{entry.result!.articleNumber}</td>
-                                <td className="px-3 py-2 text-right text-foreground">₹{entry.result!.price.toLocaleString("en-IN")}</td>
-                                <td className="px-3 py-2 text-right text-foreground">{qty > 0 ? qty : "—"}</td>
-                                <td className="px-3 py-2 text-right text-foreground font-medium">{qty > 0 ? `₹${lineTotal.toLocaleString("en-IN")}` : "—"}</td>
+                                <td className="px-4 py-2 text-muted-foreground">{i + 1}</td>
+                                <td className="px-4 py-2 text-foreground font-medium">{entry.result!.articleNumber}</td>
+                                <td className="px-4 py-2 text-right text-foreground">₹{entry.result!.price.toLocaleString("en-IN")}</td>
+                                <td className="px-4 py-2 text-right text-foreground">{qty > 0 ? qty : "—"}</td>
+                                <td className="px-4 py-2 text-right text-foreground font-medium">{qty > 0 ? `₹${lineTotal.toLocaleString("en-IN")}` : "—"}</td>
                               </tr>
                             );
                           })}
@@ -364,14 +368,14 @@ const PriceLookup = () => {
                         {bulkGrandTotal > 0 && (
                           <tfoot>
                             <tr>
-                              <td colSpan={4} className="px-3 py-2 text-right font-semibold text-foreground">Grand Total</td>
-                              <td className="px-3 py-2 text-right font-bold text-foreground">₹{bulkGrandTotal.toLocaleString("en-IN")}</td>
+                              <td colSpan={4} className="px-4 py-2 text-right font-semibold text-foreground">Grand Total</td>
+                              <td className="px-4 py-2 text-right font-bold text-foreground">₹{bulkGrandTotal.toLocaleString("en-IN")}</td>
                             </tr>
                           </tfoot>
                         )}
                       </table>
                     </div>
-                    <div className="p-3 border-t border-border">
+                    <div className="p-4 border-t border-border">
                       <button onClick={handleBulkOrder} disabled={!hasValidBulkOrder || placeOrder.isPending}
                         className="w-full h-10 rounded-md bg-green-700 text-white font-medium text-sm flex items-center justify-center gap-2 hover:bg-green-800 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                         <ShoppingCart className="h-4 w-4" /> {placeOrder.isPending ? "Placing..." : "Bulk Order via WhatsApp"}
