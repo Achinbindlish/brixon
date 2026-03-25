@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { RefreshCw, Loader2, ExternalLink, Clock } from "lucide-react";
+import { RefreshCw, Loader2, ExternalLink, Clock, Radio, Wifi, WifiOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const useLastSynced = () => {
