@@ -170,7 +170,8 @@ const PriceLookup = () => {
         </div>
       </header>
 
-      <main className="w-full max-w-lg mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-5">
+      <main className="w-full max-w-lg mx-auto px-4 sm:px-6 space-y-5 flex flex-col" style={{ minHeight: 'calc(100vh - 3.5rem)' }}>
+        <div className="flex-1 min-h-[50%]" />
         {/* Mode toggle */}
         <div className="flex border border-border rounded-md overflow-hidden">
           <button
@@ -401,6 +402,7 @@ const PriceLookup = () => {
             )}
           </div>
         )}
+        <div className="pb-6" />
       </main>
     </div>
   );
