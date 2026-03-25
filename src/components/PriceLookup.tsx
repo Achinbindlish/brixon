@@ -151,26 +151,7 @@ const PriceLookup = () => {
 
   return (
     <div className="min-h-screen bg-background border-l-[24px] border-l-accent-orange">
-      {/* Header */}
-      <header className="border-b border-border bg-primary sticky top-0 z-50">
-        <div className="w-full px-4 sm:px-6 h-14 flex items-center justify-between">
-          <img src={brixonLogo} alt="Brixon" className="h-9 sm:h-10 md:h-11 w-auto object-contain" />
-          <div className="flex items-center gap-1">
-            {isAdmin && (
-              <button onClick={() => navigate("/admin")} className="p-2 rounded-md text-primary-foreground/60 hover:text-primary-foreground transition-colors">
-                <Settings className="h-4 w-4" />
-              </button>
-            )}
-            {isLoggedIn && (
-              <button onClick={signOut} className="p-2 rounded-md text-primary-foreground/60 hover:text-primary-foreground transition-colors">
-                <LogOut className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <main className="w-full max-w-lg mx-auto px-4 sm:px-6 space-y-5 flex flex-col" style={{ minHeight: 'calc(100vh - 3.5rem)' }}>
+      <main className="w-full max-w-lg mx-auto px-4 sm:px-6 space-y-5 flex flex-col min-h-screen">
         <div className="flex-1 min-h-[50%] flex flex-col items-start justify-center px-2">
           <h1 className="text-2xl font-bold text-foreground leading-tight">Good to see you partner,</h1>
           <p className="text-xl text-muted-foreground mt-1">What are you looking for today?</p>
