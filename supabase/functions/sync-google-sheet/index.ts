@@ -71,11 +71,14 @@ Deno.serve(async (req) => {
         if (!error) count++;
       }
     } else if (type === "stock") {
+      // Delete all existing stock entries first, then insert each row as a separate entry
+      // This allows multiple rows per article (e.g., different rolls)
+      await supabase.from("stock").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+
       for (const row of rows) {
         const articleNumber = row.article_number || row.articlenumber || row.article || "";
         if (!articleNumber) continue;
 
-        // Find article ID
         const { data: article } = await supabase
           .from("articles")
           .select("id")
@@ -84,13 +87,13 @@ Deno.serve(async (req) => {
 
         if (!article) continue;
 
-        const { error } = await supabase.from("stock").upsert(
-          {
-            article_id: article.id,
-            quantity: Number(row.quantity || row.stock || row.qty || 0),
-          },
-          { onConflict: "article_id" }
-        );
+        const qty = Number(row.quantity || row.stock || row.qty || 0);
+        if (qty <= 0) continue;
+
+        const { error } = await supabase.from("stock").insert({
+          article_id: article.id,
+          quantity: qty,
+        });
         if (!error) count++;
       }
     } else {
