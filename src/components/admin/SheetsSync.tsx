@@ -31,7 +31,35 @@ const SheetsSync = () => {
   const [priceSheetUrl, setPriceSheetUrl] = useState("");
   const [stockSheetUrl, setStockSheetUrl] = useState("");
   const [syncing, setSyncing] = useState<"" | "prices" | "stock">("");
+  const [realtimeActive, setRealtimeActive] = useState(false);
+  const [lastRealtimeEvent, setLastRealtimeEvent] = useState<string | null>(null);
   const { data: lastSynced, refetch: refetchSynced } = useLastSynced();
+  const queryClient = useQueryClient();
+
+  // Realtime subscription
+  useEffect(() => {
+    if (!realtimeActive) return;
+
+    const channel = supabase
+      .channel("admin-sync-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "articles" }, () => {
+        setLastRealtimeEvent(new Date().toISOString());
+        refetchSynced();
+        queryClient.invalidateQueries({ queryKey: ["articles"] });
+        toast({ title: "Price list updated in real-time" });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "stock" }, () => {
+        setLastRealtimeEvent(new Date().toISOString());
+        refetchSynced();
+        queryClient.invalidateQueries({ queryKey: ["stock"] });
+        toast({ title: "Stock updated in real-time" });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [realtimeActive, refetchSynced, queryClient]);
 
   const handleSync = async (type: "prices" | "stock") => {
     const url = type === "prices" ? priceSheetUrl : stockSheetUrl;
