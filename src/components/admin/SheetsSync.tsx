@@ -36,7 +36,6 @@ const SheetsSync = () => {
   const { data: lastSynced, refetch: refetchSynced } = useLastSynced();
   const queryClient = useQueryClient();
 
-  // Realtime subscription
   useEffect(() => {
     if (!realtimeActive) return;
 
@@ -87,13 +86,14 @@ const SheetsSync = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-card rounded-xl border border-border p-5 space-y-4">
+    <div className="space-y-5 max-w-2xl mx-auto">
+      {/* How-to Card */}
+      <div className="bg-card rounded-lg border border-border p-4">
         <div className="flex items-start gap-3">
-          <ExternalLink className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+          <ExternalLink className="h-4 w-4 text-primary mt-0.5 shrink-0" />
           <div className="space-y-1">
             <p className="text-sm font-semibold text-foreground">How to get the CSV URL</p>
-            <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+            <ol className="text-xs text-muted-foreground space-y-0.5 list-decimal list-inside">
               <li>Open your Google Sheet</li>
               <li>Go to <strong>File → Share → Publish to web</strong></li>
               <li>Select the sheet tab and choose <strong>CSV</strong> format</li>
@@ -103,113 +103,106 @@ const SheetsSync = () => {
         </div>
       </div>
 
-      {/* Realtime Sync Toggle */}
-      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
-        <div className="flex items-center justify-between">
+      {/* Realtime + Last Synced Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Realtime Sync */}
+        <div className="bg-card rounded-lg border border-border p-4 space-y-3">
           <div className="flex items-center gap-2">
-            <Radio className="h-5 w-5 text-primary" />
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">Realtime Sync</h3>
-              <p className="text-xs text-muted-foreground">
-                Auto-update when Google Sheets pushes data via webhook
-              </p>
-            </div>
+            <Radio className="h-4 w-4 text-primary shrink-0" />
+            <h3 className="text-sm font-semibold text-foreground">Realtime Sync</h3>
           </div>
+          <p className="text-xs text-muted-foreground">
+            Auto-update when Sheets pushes data via webhook
+          </p>
           <button
             onClick={() => setRealtimeActive(!realtimeActive)}
-            className={`h-9 px-4 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
+            className={`w-full h-9 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-all ${
               realtimeActive
                 ? "bg-green-600 text-white hover:bg-green-700"
                 : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
             }`}
           >
             {realtimeActive ? (
-              <>
-                <Wifi className="h-4 w-4" />
-                Listening
-              </>
+              <><Wifi className="h-3.5 w-3.5" /> Listening</>
             ) : (
-              <>
-                <WifiOff className="h-4 w-4" />
-                Start Realtime
-              </>
+              <><WifiOff className="h-3.5 w-3.5" /> Start Realtime</>
             )}
           </button>
+          {realtimeActive && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground border-t border-border pt-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              <span>Last event: {lastRealtimeEvent ? formatTimestamp(lastRealtimeEvent) : "Waiting..."}</span>
+            </div>
+          )}
         </div>
-        {realtimeActive && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground border-t border-border pt-3">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-            </span>
-            <span>
-              Connected — last event:{" "}
-              {lastRealtimeEvent ? formatTimestamp(lastRealtimeEvent) : "Waiting..."}
-            </span>
+
+        {/* Last Synced */}
+        <div className="bg-card rounded-lg border border-border p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-primary shrink-0" />
+            <h3 className="text-sm font-semibold text-foreground">Last Synced</h3>
           </div>
-        )}
-      </div>
-
-      {/* Last Synced */}
-      <div className="bg-card rounded-xl border border-border p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Clock className="h-4 w-4 shrink-0" />
-          <span className="text-xs font-medium">Last synced</span>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-6 text-xs">
-          <span className="text-foreground">
-            <span className="text-muted-foreground">Prices:</span>{" "}
-            {formatTimestamp(lastSynced?.prices ?? null)}
-          </span>
-          <span className="text-foreground">
-            <span className="text-muted-foreground">Stock:</span>{" "}
-            {formatTimestamp(lastSynced?.stock ?? null)}
-          </span>
+          <div className="space-y-2 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Prices</span>
+              <span className="text-foreground font-medium">{formatTimestamp(lastSynced?.prices ?? null)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Stock</span>
+              <span className="text-foreground font-medium">{formatTimestamp(lastSynced?.stock ?? null)}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Price List Sync */}
-      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
-        <h3 className="text-sm font-semibold text-foreground">Price List Sheet</h3>
-        <p className="text-xs text-muted-foreground">
-          Expected columns: <code className="bg-muted px-1 rounded">article_number</code>, <code className="bg-muted px-1 rounded">description</code>, <code className="bg-muted px-1 rounded">price</code>, <code className="bg-muted px-1 rounded">unit</code>, <code className="bg-muted px-1 rounded">stock_unit</code>
-        </p>
-        <input
-          value={priceSheetUrl}
-          onChange={(e) => setPriceSheetUrl(e.target.value)}
-          placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv"
-          className="w-full h-10 px-3 rounded-lg border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-        />
-        <button
-          onClick={() => handleSync("prices")}
-          disabled={syncing === "prices" || !priceSheetUrl}
-          className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium flex items-center gap-2 hover:opacity-90 disabled:opacity-50 transition-all"
-        >
-          {syncing === "prices" ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-          {syncing === "prices" ? "Syncing..." : "Sync Price List"}
-        </button>
-      </div>
+      {/* Sync Cards Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Price List Sync */}
+        <div className="bg-card rounded-lg border border-border p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-foreground">Price List Sheet</h3>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Columns: <code className="bg-muted px-1 rounded text-[11px]">article_number</code>, <code className="bg-muted px-1 rounded text-[11px]">description</code>, <code className="bg-muted px-1 rounded text-[11px]">price</code>, <code className="bg-muted px-1 rounded text-[11px]">unit</code>, <code className="bg-muted px-1 rounded text-[11px]">stock_unit</code>
+          </p>
+          <input
+            value={priceSheetUrl}
+            onChange={(e) => setPriceSheetUrl(e.target.value)}
+            placeholder="Paste published CSV URL"
+            className="w-full h-9 px-3 rounded-md border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+          />
+          <button
+            onClick={() => handleSync("prices")}
+            disabled={syncing === "prices" || !priceSheetUrl}
+            className="w-full h-9 rounded-md bg-primary text-primary-foreground text-sm font-medium flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-all"
+          >
+            {syncing === "prices" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {syncing === "prices" ? "Syncing..." : "Sync Prices"}
+          </button>
+        </div>
 
-      {/* Stock Sync */}
-      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
-        <h3 className="text-sm font-semibold text-foreground">Stock Position Sheet</h3>
-        <p className="text-xs text-muted-foreground">
-          Expected columns: <code className="bg-muted px-1 rounded">article_number</code>, <code className="bg-muted px-1 rounded">quantity</code>
-        </p>
-        <input
-          value={stockSheetUrl}
-          onChange={(e) => setStockSheetUrl(e.target.value)}
-          placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv"
-          className="w-full h-10 px-3 rounded-lg border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-        />
-        <button
-          onClick={() => handleSync("stock")}
-          disabled={syncing === "stock" || !stockSheetUrl}
-          className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium flex items-center gap-2 hover:opacity-90 disabled:opacity-50 transition-all"
-        >
-          {syncing === "stock" ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-          {syncing === "stock" ? "Syncing..." : "Sync Stock Positions"}
-        </button>
+        {/* Stock Sync */}
+        <div className="bg-card rounded-lg border border-border p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-foreground">Stock Position Sheet</h3>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Columns: <code className="bg-muted px-1 rounded text-[11px]">article_number</code>, <code className="bg-muted px-1 rounded text-[11px]">quantity</code>
+          </p>
+          <input
+            value={stockSheetUrl}
+            onChange={(e) => setStockSheetUrl(e.target.value)}
+            placeholder="Paste published CSV URL"
+            className="w-full h-9 px-3 rounded-md border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+          />
+          <button
+            onClick={() => handleSync("stock")}
+            disabled={syncing === "stock" || !stockSheetUrl}
+            className="w-full h-9 rounded-md bg-primary text-primary-foreground text-sm font-medium flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-all"
+          >
+            {syncing === "stock" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {syncing === "stock" ? "Syncing..." : "Sync Stock"}
+          </button>
+        </div>
       </div>
     </div>
   );
