@@ -1,12 +1,37 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { RefreshCw, Loader2, ExternalLink } from "lucide-react";
+import { RefreshCw, Loader2, ExternalLink, Clock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+
+const useLastSynced = () => {
+  return useQuery({
+    queryKey: ["last-synced"],
+    queryFn: async () => {
+      const [{ data: artData }, { data: stockData }] = await Promise.all([
+        supabase.from("articles").select("updated_at").order("updated_at", { ascending: false }).limit(1),
+        supabase.from("stock").select("updated_at").order("updated_at", { ascending: false }).limit(1),
+      ]);
+      return {
+        prices: artData?.[0]?.updated_at || null,
+        stock: stockData?.[0]?.updated_at || null,
+      };
+    },
+    refetchInterval: 30000,
+  });
+};
+
+const formatTimestamp = (ts: string | null) => {
+  if (!ts) return "Never";
+  const d = new Date(ts);
+  return d.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+};
 
 const SheetsSync = () => {
   const [priceSheetUrl, setPriceSheetUrl] = useState("");
   const [stockSheetUrl, setStockSheetUrl] = useState("");
   const [syncing, setSyncing] = useState<"" | "prices" | "stock">("");
+  const { data: lastSynced, refetch: refetchSynced } = useLastSynced();
 
   const handleSync = async (type: "prices" | "stock") => {
     const url = type === "prices" ? priceSheetUrl : stockSheetUrl;
@@ -25,6 +50,7 @@ const SheetsSync = () => {
         title: `${type === "prices" ? "Price list" : "Stock"} synced!`,
         description: data?.message || `${data?.count || 0} records updated`,
       });
+      refetchSynced();
     } catch (err: any) {
       toast({ title: "Sync failed", description: err.message, variant: "destructive" });
     } finally {
@@ -46,6 +72,24 @@ const SheetsSync = () => {
               <li>Click <strong>Publish</strong> and copy the URL</li>
             </ol>
           </div>
+        </div>
+      </div>
+
+      {/* Last Synced */}
+      <div className="bg-card rounded-xl border border-border p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Clock className="h-4 w-4 shrink-0" />
+          <span className="text-xs font-medium">Last synced</span>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-6 text-xs">
+          <span className="text-foreground">
+            <span className="text-muted-foreground">Prices:</span>{" "}
+            {formatTimestamp(lastSynced?.prices ?? null)}
+          </span>
+          <span className="text-foreground">
+            <span className="text-muted-foreground">Stock:</span>{" "}
+            {formatTimestamp(lastSynced?.stock ?? null)}
+          </span>
         </div>
       </div>
 
