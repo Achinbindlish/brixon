@@ -36,43 +36,31 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { email, password, full_name, phone, role } = await req.json();
-    if (!email || !password) {
-      return new Response(JSON.stringify({ error: "Email and password are required" }), {
+    const { user_id } = await req.json();
+    if (!user_id) {
+      return new Response(JSON.stringify({ error: "user_id is required" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Prevent self-deletion
+    if (user_id === caller.id) {
+      return new Response(JSON.stringify({ error: "Cannot delete your own account" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { full_name: full_name || "", phone: phone || "" },
-    });
-
-    if (createError) {
-      return new Response(JSON.stringify({ error: createError.message }), {
+    // Delete from auth (cascades to profiles, user_roles due to FK)
+    const { error } = await adminClient.auth.admin.deleteUser(user_id);
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Update profile with phone, email, and password_plain
-    if (newUser.user) {
-      await adminClient.from("profiles").update({
-        phone: phone || "",
-        email,
-        password_plain: password,
-      }).eq("user_id", newUser.user.id);
-    }
-
-    // If a specific role is requested (and it's not the default 'salesperson')
-    if (role && role !== "salesperson" && newUser.user) {
-      await adminClient.from("user_roles").update({ role }).eq("user_id", newUser.user.id);
-    }
-
-    return new Response(JSON.stringify({ user: newUser.user }), {
+    return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
