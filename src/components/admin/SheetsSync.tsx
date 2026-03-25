@@ -103,6 +103,53 @@ const SheetsSync = () => {
         </div>
       </div>
 
+      {/* Realtime Sync Toggle */}
+      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Radio className="h-5 w-5 text-primary" />
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Realtime Sync</h3>
+              <p className="text-xs text-muted-foreground">
+                Auto-update when Google Sheets pushes data via webhook
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setRealtimeActive(!realtimeActive)}
+            className={`h-9 px-4 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
+              realtimeActive
+                ? "bg-green-600 text-white hover:bg-green-700"
+                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+            }`}
+          >
+            {realtimeActive ? (
+              <>
+                <Wifi className="h-4 w-4" />
+                Listening
+              </>
+            ) : (
+              <>
+                <WifiOff className="h-4 w-4" />
+                Start Realtime
+              </>
+            )}
+          </button>
+        </div>
+        {realtimeActive && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground border-t border-border pt-3">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            <span>
+              Connected — last event:{" "}
+              {lastRealtimeEvent ? formatTimestamp(lastRealtimeEvent) : "Waiting..."}
+            </span>
+          </div>
+        )}
+      </div>
+
       {/* Last Synced */}
       <div className="bg-card rounded-xl border border-border p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
         <div className="flex items-center gap-2 text-muted-foreground">
