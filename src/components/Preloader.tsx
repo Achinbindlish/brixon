@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import brixonLogo from "@/assets/brixon-logo-white.png";
 
 const Preloader = ({ onComplete }: { onComplete: () => void }) => {
   const [fade, setFade] = useState(false);
@@ -15,9 +16,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
         fade ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
-      <h1 className="text-4xl font-bold tracking-widest text-primary-foreground uppercase">
-        Brixon
-      </h1>
+      <img src={brixonLogo} alt="Brixon" className="h-12 object-contain" />
       <div className="mt-6 w-12 h-0.5 bg-primary-foreground/30 overflow-hidden rounded-full">
         <div className="h-full bg-primary-foreground animate-[loader_1.2s_ease-in-out_infinite]" />
       </div>

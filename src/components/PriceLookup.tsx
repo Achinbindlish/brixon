@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, ShoppingCart, Plus, Trash2, List, LogOut, Loader2, Settings } from "lucide-react";
+import brixonLogo from "@/assets/brixon-logo-white.png";
 import { useArticles, type ArticleWithStock } from "@/hooks/useArticles";
 import { usePlaceOrder } from "@/hooks/useOrders";
 import { useAuth } from "@/hooks/useAuth";
@@ -152,17 +153,17 @@ const PriceLookup = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card">
+      <header className="border-b border-border bg-primary">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
-          <h1 className="text-lg font-semibold tracking-tight text-foreground">Brixon</h1>
+          <img src={brixonLogo} alt="Brixon" className="h-7 object-contain" />
           <div className="flex items-center gap-1">
             {isAdmin && (
-              <button onClick={() => navigate("/admin")} className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+              <button onClick={() => navigate("/admin")} className="p-2 rounded-md text-primary-foreground/60 hover:text-primary-foreground transition-colors">
                 <Settings className="h-4 w-4" />
               </button>
             )}
             {isLoggedIn && (
-              <button onClick={signOut} className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+              <button onClick={signOut} className="p-2 rounded-md text-primary-foreground/60 hover:text-primary-foreground transition-colors">
                 <LogOut className="h-4 w-4" />
               </button>
             )}
