@@ -130,7 +130,7 @@ const PriceLookup = () => {
   };
 
   const handleBulkClear = () => {
-    setBulkEntries([{ articleNumber: "", result: null, notFound: false, orderQty: "" }]);
+    setBulkEntries(Array.from({ length: 10 }, () => ({ articleNumber: "", result: null, notFound: false, orderQty: "" })));
     setBulkSearched(false);
   };
 
