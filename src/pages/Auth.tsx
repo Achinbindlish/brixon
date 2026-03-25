@@ -54,13 +54,11 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-primary flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
-        <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold tracking-widest text-primary-foreground uppercase">
-            Brixon
-          </h1>
-          <p className="text-primary-foreground/60 text-xs tracking-wide">
+        <div className="text-center space-y-2 flex flex-col items-center">
+          <img src={brixonLogo} alt="Brixon" className="h-20 w-auto object-contain" />
+          <p className="text-foreground/60 text-xs tracking-wide">
             {mode === "login" ? "Sign in to your account" : "Reset your password"}
           </p>
         </div>
