@@ -317,11 +317,18 @@ const PriceLookup = () => {
                         </div>
                         <p className="text-xl font-bold tracking-tight text-foreground">₹{entry.result.price.toLocaleString("en-IN")}</p>
                       </div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Stock</span>
-                        <span className={entry.result.stock > 0 ? "text-green-700 font-semibold" : "text-destructive font-semibold"}>
-                          {entry.result.stock > 0 ? `${entry.result.stock} ${entry.result.stockUnit}` : "Out of stock"}
-                        </span>
+                      <div className="space-y-0.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Stock</span>
+                          <span className={entry.result.stock > 0 ? "text-green-700 font-semibold" : "text-destructive font-semibold"}>
+                            {entry.result.stock > 0 ? `${entry.result.stock} ${entry.result.stockUnit}` : "Out of stock"}
+                          </span>
+                        </div>
+                        {entry.result.stockBreakdown.length > 1 && (
+                          <p className="text-xs text-muted-foreground text-right">
+                            {entry.result.stockBreakdown.join(" + ")}
+                          </p>
+                        )}
                       </div>
                       <div className="flex items-center gap-2">
                         <input type="number" min="1" value={entry.orderQty} onChange={(e) => updateBulkQty(i, e.target.value)}
