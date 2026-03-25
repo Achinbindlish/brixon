@@ -31,6 +31,7 @@ const SheetsSync = () => {
   const [priceSheetUrl, setPriceSheetUrl] = useState("");
   const [stockSheetUrl, setStockSheetUrl] = useState("");
   const [syncing, setSyncing] = useState<"" | "prices" | "stock">("");
+  const { data: lastSynced, refetch: refetchSynced } = useLastSynced();
 
   const handleSync = async (type: "prices" | "stock") => {
     const url = type === "prices" ? priceSheetUrl : stockSheetUrl;
@@ -49,6 +50,7 @@ const SheetsSync = () => {
         title: `${type === "prices" ? "Price list" : "Stock"} synced!`,
         description: data?.message || `${data?.count || 0} records updated`,
       });
+      refetchSynced();
     } catch (err: any) {
       toast({ title: "Sync failed", description: err.message, variant: "destructive" });
     } finally {
