@@ -35,8 +35,8 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-3">
+      <header className="border-b border-border bg-card sticky top-0 z-50">
+        <div className="w-full px-4 sm:px-6 h-14 flex items-center gap-3">
           <button onClick={() => navigate("/")} className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </button>
