@@ -171,7 +171,7 @@ const PriceLookup = () => {
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 py-6 space-y-5">
+      <main className="w-full max-w-lg mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-5">
         {/* Mode toggle */}
         <div className="flex border border-border rounded-md overflow-hidden">
           <button
