@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import { Loader2, ArrowLeft } from "lucide-react";
+import brixonLogo from "@/assets/brixon-logo.png";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
