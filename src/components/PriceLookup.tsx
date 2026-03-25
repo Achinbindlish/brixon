@@ -280,11 +280,9 @@ const PriceLookup = () => {
               ))}
             </div>
 
-            {bulkEntries.length < 10 && (
-              <button onClick={addBulkEntry} className="w-full h-9 rounded-md border border-dashed border-border text-muted-foreground text-xs flex items-center justify-center gap-1.5 hover:text-foreground hover:bg-secondary transition-colors">
-                <Plus className="h-3.5 w-3.5" /> Add article
-              </button>
-            )}
+            <button onClick={addBulkEntry} className="w-full h-9 rounded-md border border-dashed border-border text-muted-foreground text-xs flex items-center justify-center gap-1.5 hover:text-foreground hover:bg-secondary transition-colors">
+              <Plus className="h-3.5 w-3.5" /> Add more
+            </button>
 
             <button onClick={handleBulkSearch} className="w-full h-10 rounded-md bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 active:scale-[0.99] transition-all">
               Search all
