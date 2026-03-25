@@ -153,9 +153,9 @@ const PriceLookup = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-primary">
-        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
-          <img src={brixonLogo} alt="Brixon" className="h-8 w-auto object-contain" />
+      <header className="border-b border-border bg-primary sticky top-0 z-50">
+        <div className="w-full px-4 sm:px-6 h-14 flex items-center justify-between">
+          <img src={brixonLogo} alt="Brixon" className="h-7 sm:h-8 w-auto object-contain" />
           <div className="flex items-center gap-1">
             {isAdmin && (
               <button onClick={() => navigate("/admin")} className="p-2 rounded-md text-primary-foreground/60 hover:text-primary-foreground transition-colors">
@@ -171,7 +171,7 @@ const PriceLookup = () => {
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 py-6 space-y-5">
+      <main className="w-full max-w-lg mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-5">
         {/* Mode toggle */}
         <div className="flex border border-border rounded-md overflow-hidden">
           <button
