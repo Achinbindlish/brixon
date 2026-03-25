@@ -402,6 +402,7 @@ const PriceLookup = () => {
             )}
           </div>
         )}
+        <div className="pb-6" />
       </main>
     </div>
   );
