@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import { Loader2, ArrowLeft } from "lucide-react";
+import brixonLogo from "@/assets/brixon-logo.png";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -53,13 +54,11 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-primary flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
-        <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold tracking-widest text-primary-foreground uppercase">
-            Brixon
-          </h1>
-          <p className="text-primary-foreground/60 text-xs tracking-wide">
+        <div className="text-center space-y-2 flex flex-col items-center">
+          <img src={brixonLogo} alt="Brixon" className="h-20 w-auto object-contain" />
+          <p className="text-foreground/60 text-xs tracking-wide">
             {mode === "login" ? "Sign in to your account" : "Reset your password"}
           </p>
         </div>
@@ -72,7 +71,7 @@ const Auth = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
               required
-              className="w-full h-11 px-3 rounded-md border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary-foreground/50 text-sm"
+              className="w-full h-11 px-3 rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring text-sm"
             />
             <input
               type="password"
@@ -81,15 +80,15 @@ const Auth = () => {
               placeholder="Password"
               required
               minLength={6}
-              className="w-full h-11 px-3 rounded-md border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary-foreground/50 text-sm"
+              className="w-full h-11 px-3 rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring text-sm"
             />
 
-            {error && <p className="text-xs text-red-400">{error}</p>}
+            {error && <p className="text-xs text-destructive">{error}</p>}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-11 rounded-md bg-primary-foreground text-primary font-medium text-sm hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full h-11 rounded-md bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {loading ? "Please wait..." : "Sign in"}
@@ -98,7 +97,7 @@ const Auth = () => {
             <button
               type="button"
               onClick={() => { setMode("forgot"); setError(""); }}
-              className="w-full text-center text-xs text-primary-foreground/50 hover:text-primary-foreground/80 transition-colors"
+              className="w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               Forgot password?
             </button>
@@ -111,16 +110,16 @@ const Auth = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="w-full h-11 px-3 rounded-md border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary-foreground/50 text-sm"
+              className="w-full h-11 px-3 rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring text-sm"
             />
 
-            {error && <p className="text-xs text-red-400">{error}</p>}
-            {success && <p className="text-xs text-green-400">{success}</p>}
+            {error && <p className="text-xs text-destructive">{error}</p>}
+            {success && <p className="text-xs text-green-600">{success}</p>}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-11 rounded-md bg-primary-foreground text-primary font-medium text-sm hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full h-11 rounded-md bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {loading ? "Sending..." : "Send reset link"}
@@ -129,7 +128,7 @@ const Auth = () => {
             <button
               type="button"
               onClick={() => { setMode("login"); setError(""); setSuccess(""); }}
-              className="w-full text-center text-xs text-primary-foreground/50 hover:text-primary-foreground/80 transition-colors flex items-center justify-center gap-1"
+              className="w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-1"
             >
               <ArrowLeft className="h-3 w-3" /> Back to sign in
             </button>
