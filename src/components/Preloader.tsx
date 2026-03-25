@@ -16,7 +16,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
         fade ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
-      <img src={brixonLogo} alt="Brixon" className="h-12 object-contain" />
+      <img src={brixonLogo} alt="Brixon" className="w-48 object-contain" />
       <div className="mt-6 w-12 h-0.5 bg-primary-foreground/30 overflow-hidden rounded-full">
         <div className="h-full bg-primary-foreground animate-[loader_1.2s_ease-in-out_infinite]" />
       </div>
