@@ -10,7 +10,15 @@ function parseCSV(text: string): Record<string, string>[] {
   if (lines.length < 2) return [];
   const headers = lines[0].split(",").map((h) => h.trim().toLowerCase().replace(/[^a-z0-9_]/g, "_"));
   return lines.slice(1).map((line) => {
-    const values = line.split(",").map((v) => v.trim().replace(/^"|"$/g, ""));
+    const values: string[] = [];
+    let current = "";
+    let inQuotes = false;
+    for (const ch of line) {
+      if (ch === '"') { inQuotes = !inQuotes; }
+      else if (ch === ',' && !inQuotes) { values.push(current.trim()); current = ""; }
+      else { current += ch; }
+    }
+    values.push(current.trim());
     const row: Record<string, string> = {};
     headers.forEach((h, i) => (row[h] = values[i] || ""));
     return row;
@@ -30,7 +38,6 @@ Deno.serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
-    // Verify user is admin
     const userClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -43,7 +50,6 @@ Deno.serve(async (req) => {
     const { type, csvUrl } = await req.json();
     if (!type || !csvUrl) throw new Error("Missing type or csvUrl");
 
-    // Fetch CSV
     const csvResponse = await fetch(csvUrl);
     if (!csvResponse.ok) throw new Error(`Failed to fetch CSV: ${csvResponse.status}`);
     const csvText = await csvResponse.text();
@@ -52,49 +58,66 @@ Deno.serve(async (req) => {
     if (rows.length === 0) throw new Error("No data found in CSV");
 
     let count = 0;
+    const BATCH_SIZE = 500;
 
     if (type === "prices") {
+      const records: any[] = [];
       for (const row of rows) {
         const articleNumber = row.article_number || row.articlenumber || row.article || "";
         if (!articleNumber) continue;
+        records.push({
+          article_number: articleNumber,
+          description: row.description || row.desc || "",
+          price: Number(row.price || row.mrp || 0),
+          unit: row.unit || "pc",
+          stock_unit: row.stock_unit || row.stockunit || "meter",
+        });
+      }
+      // Deduplicate: keep last occurrence per article_number
+      const deduped = new Map<string, any>();
+      for (const r of records) deduped.set(r.article_number, r);
+      const unique = Array.from(deduped.values());
 
-        const { error } = await supabase.from("articles").upsert(
-          {
-            article_number: articleNumber,
-            description: row.description || row.desc || "",
-            price: Number(row.price || row.mrp || 0),
-            unit: row.unit || "pc",
-            stock_unit: row.stock_unit || row.stockunit || "meter",
-          },
-          { onConflict: "article_number" }
-        );
-        if (!error) count++;
+      for (let i = 0; i < unique.length; i += BATCH_SIZE) {
+        const batch = unique.slice(i, i + BATCH_SIZE);
+        const { error } = await supabase.from("articles").upsert(batch, { onConflict: "article_number" });
+        if (!error) count += batch.length;
       }
     } else if (type === "stock") {
-      // Delete all existing stock entries first, then insert each row as a separate entry
-      // This allows multiple rows per article (e.g., different rolls)
       await supabase.from("stock").delete().neq("id", "00000000-0000-0000-0000-000000000000");
 
+      // First, fetch all articles to build a lookup map
+      const allArticles: { id: string; article_number: string }[] = [];
+      let from = 0;
+      while (true) {
+        const { data, error } = await supabase
+          .from("articles")
+          .select("id, article_number")
+          .range(from, from + 999);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        allArticles.push(...data);
+        if (data.length < 1000) break;
+        from += 1000;
+      }
+      const articleMap = new Map<string, string>();
+      for (const a of allArticles) articleMap.set(a.article_number, a.id);
+
+      const stockRecords: any[] = [];
       for (const row of rows) {
         const articleNumber = row.article_number || row.articlenumber || row.article || "";
         if (!articleNumber) continue;
-
-        const { data: article } = await supabase
-          .from("articles")
-          .select("id")
-          .eq("article_number", articleNumber)
-          .maybeSingle();
-
-        if (!article) continue;
-
+        const articleId = articleMap.get(articleNumber);
+        if (!articleId) continue;
         const qty = Number(row.quantity || row.stock || row.qty || 0);
         if (qty <= 0) continue;
+        stockRecords.push({ article_id: articleId, quantity: qty });
+      }
 
-        const { error } = await supabase.from("stock").insert({
-          article_id: article.id,
-          quantity: qty,
-        });
-        if (!error) count++;
+      for (let i = 0; i < stockRecords.length; i += BATCH_SIZE) {
+        const batch = stockRecords.slice(i, i + BATCH_SIZE);
+        const { error } = await supabase.from("stock").insert(batch);
+        if (!error) count += batch.length;
       }
     } else {
       throw new Error("Invalid type. Use 'prices' or 'stock'");
