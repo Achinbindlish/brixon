@@ -60,17 +60,17 @@ const PriceLookup = () => {
   const handlePlaceOrder = async () => {
     if (!result || !orderQty || Number(orderQty) <= 0) return;
     const qty = Number(orderQty);
-    if (isLoggedIn) {
-      try {
-        await placeOrder.mutateAsync([{ article: result, quantity: qty }]);
-        toast({ title: "Order placed!", description: "Your order has been saved." });
-      } catch {
-        toast({ title: "Error", description: "Failed to save order", variant: "destructive" });
-      }
+    try {
+      await placeOrder.mutateAsync([{ article: result, quantity: qty }]);
+      toast({ title: "Order placed!", description: "Your order has been saved." });
+      const total = result.price * qty;
+      const message = `🛒 *New Order*\n\nArticle: *${result.articleNumber}*\n${result.description ? `Description: ${result.description}\n` : ""}Price: ₹${result.price.toLocaleString("en-IN")}/${result.stockUnit}\nQuantity: *${qty} ${result.stockUnit}*\nTotal: *₹${total.toLocaleString("en-IN")}*`;
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
+    } catch (err: any) {
+      const msg = err?.message || "Failed to place order";
+      const isStock = msg.toLowerCase().includes("insufficient stock");
+      toast({ title: isStock ? "Insufficient Stock" : "Order Failed", description: msg, variant: "destructive" });
     }
-    const total = result.price * qty;
-    const message = `🛒 *New Order*\n\nArticle: *${result.articleNumber}*\n${result.description ? `Description: ${result.description}\n` : ""}Price: ₹${result.price.toLocaleString("en-IN")}/${result.stockUnit}\nQuantity: *${qty} ${result.stockUnit}*\nTotal: *₹${total.toLocaleString("en-IN")}*`;
-    window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
   };
 
   const addBulkEntry = () => {
