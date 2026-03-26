@@ -12,34 +12,17 @@ export const usePlaceOrder = () => {
 
   return useMutation({
     mutationFn: async (items: OrderItem[]) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const grandTotal = items.reduce((sum, i) => sum + i.article.price * i.quantity, 0);
-
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({ user_id: user.id, grand_total: grandTotal })
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      const orderItems = items.map((i) => ({
-        order_id: order.id,
+      const p_items = items.map((i) => ({
         article_id: i.article.id,
-        article_number: i.article.articleNumber,
-        description: i.article.description,
-        price: i.article.price,
         quantity: i.quantity,
-        total: i.article.price * i.quantity,
-        stock_unit: i.article.stockUnit,
       }));
 
-      const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
-      if (itemsError) throw itemsError;
+      const { data, error } = await supabase.rpc("process_order", {
+        p_items: p_items as any,
+      });
 
-      return order;
+      if (error) throw error;
+      return data as string; // order id
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles-with-stock"] });
