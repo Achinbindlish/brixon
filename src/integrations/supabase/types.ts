@@ -60,7 +60,7 @@ export type Database = {
           total: number
         }
         Insert: {
-          article_id: string
+          article_id?: string
           article_number: string
           description?: string | null
           id?: string
@@ -82,13 +82,6 @@ export type Database = {
           total?: number
         }
         Relationships: [
-          {
-            foreignKeyName: "order_items_article_id_fkey"
-            columns: ["article_id"]
-            isOneToOne: false
-            referencedRelation: "articles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "order_items_order_id_fkey"
             columns: ["order_id"]

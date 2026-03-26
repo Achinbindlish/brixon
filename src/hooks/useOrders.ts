@@ -12,17 +12,22 @@ export const usePlaceOrder = () => {
 
   return useMutation({
     mutationFn: async (items: OrderItem[]) => {
-      const p_items = items.map((i) => ({
-        article_id: i.article.id,
-        quantity: i.quantity,
-      }));
-
-      const { data, error } = await supabase.rpc("process_order", {
-        p_items: p_items as any,
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "google-sheets-inventory",
+        {
+          body: {
+            action: "process-order",
+            items: items.map((i) => ({
+              article_no: i.article.articleNumber,
+              quantity: i.quantity,
+            })),
+          },
+        }
+      );
 
       if (error) throw error;
-      return data as string; // order id
+      if (data?.error) throw new Error(data.error);
+      return data.order_id as string;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles-with-stock"] });
