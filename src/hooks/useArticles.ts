@@ -49,13 +49,13 @@ export const useArticles = () => {
 
       // Group stock entries by article_id
       const stockMap = new Map<string, number[]>();
-      for (const s of stockData || []) {
+      for (const s of allStock) {
         const existing = stockMap.get(s.article_id) || [];
         existing.push(Number(s.quantity));
         stockMap.set(s.article_id, existing);
       }
 
-      return (articlesData || []).map((a) => {
+      return allArticles.map((a) => {
         const breakdown = stockMap.get(a.id) || [];
         const total = breakdown.reduce((sum, q) => sum + q, 0);
         return {
