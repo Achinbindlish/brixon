@@ -241,6 +241,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      process_order: { Args: { p_items: Json }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "salesperson"
