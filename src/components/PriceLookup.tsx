@@ -23,7 +23,7 @@ const PriceLookup = () => {
   const navigate = useNavigate();
   const { data: articles = [], isLoading: articlesLoading } = useArticles();
   const placeOrder = usePlaceOrder();
-  const isLoggedIn = !!user;
+  
 
   const [mode, setMode] = useState<"single" | "bulk">("single");
   const [query, setQuery] = useState("");
@@ -60,17 +60,17 @@ const PriceLookup = () => {
   const handlePlaceOrder = async () => {
     if (!result || !orderQty || Number(orderQty) <= 0) return;
     const qty = Number(orderQty);
-    if (isLoggedIn) {
-      try {
-        await placeOrder.mutateAsync([{ article: result, quantity: qty }]);
-        toast({ title: "Order placed!", description: "Your order has been saved." });
-      } catch {
-        toast({ title: "Error", description: "Failed to save order", variant: "destructive" });
-      }
+    try {
+      await placeOrder.mutateAsync([{ article: result, quantity: qty }]);
+      toast({ title: "Order placed!", description: "Your order has been saved." });
+      const total = result.price * qty;
+      const message = `🛒 *New Order*\n\nArticle: *${result.articleNumber}*\n${result.description ? `Description: ${result.description}\n` : ""}Price: ₹${result.price.toLocaleString("en-IN")}/${result.stockUnit}\nQuantity: *${qty} ${result.stockUnit}*\nTotal: *₹${total.toLocaleString("en-IN")}*`;
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
+    } catch (err: any) {
+      const msg = err?.message || "Failed to place order";
+      const isStock = msg.toLowerCase().includes("insufficient stock");
+      toast({ title: isStock ? "Insufficient Stock" : "Order Failed", description: msg, variant: "destructive" });
     }
-    const total = result.price * qty;
-    const message = `🛒 *New Order*\n\nArticle: *${result.articleNumber}*\n${result.description ? `Description: ${result.description}\n` : ""}Price: ₹${result.price.toLocaleString("en-IN")}/${result.stockUnit}\nQuantity: *${qty} ${result.stockUnit}*\nTotal: *₹${total.toLocaleString("en-IN")}*`;
-    window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
   };
 
   const addBulkEntry = () => {
@@ -110,23 +110,23 @@ const PriceLookup = () => {
   const handleBulkOrder = async () => {
     const orderItems = bulkEntries.filter((e) => e.result && e.orderQty && Number(e.orderQty) > 0);
     if (orderItems.length === 0) return;
-    if (isLoggedIn) {
-      try {
-        await placeOrder.mutateAsync(orderItems.map((e) => ({ article: e.result!, quantity: Number(e.orderQty) })));
-        toast({ title: "Bulk order placed!", description: `${orderItems.length} items saved.` });
-      } catch {
-        toast({ title: "Error", description: "Failed to save order", variant: "destructive" });
-      }
+    try {
+      await placeOrder.mutateAsync(orderItems.map((e) => ({ article: e.result!, quantity: Number(e.orderQty) })));
+      toast({ title: "Bulk order placed!", description: `${orderItems.length} items saved.` });
+      let grandTotal = 0;
+      const lines = orderItems.map((e, i) => {
+        const qty = Number(e.orderQty);
+        const total = e.result!.price * qty;
+        grandTotal += total;
+        return `${i + 1}. *${e.result!.articleNumber}* - ${e.result!.description || ""}\n   Price: ₹${e.result!.price.toLocaleString("en-IN")}/${e.result!.stockUnit} × ${qty} = *₹${total.toLocaleString("en-IN")}*`;
+      });
+      const message = `🛒 *Bulk Order (${orderItems.length} items)*\n\n${lines.join("\n\n")}\n\n----\n*Grand Total: ₹${grandTotal.toLocaleString("en-IN")}*`;
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
+    } catch (err: any) {
+      const msg = err?.message || "Failed to place order";
+      const isStock = msg.toLowerCase().includes("insufficient stock");
+      toast({ title: isStock ? "Insufficient Stock" : "Order Failed", description: msg, variant: "destructive" });
     }
-    let grandTotal = 0;
-    const lines = orderItems.map((e, i) => {
-      const qty = Number(e.orderQty);
-      const total = e.result!.price * qty;
-      grandTotal += total;
-      return `${i + 1}. *${e.result!.articleNumber}* - ${e.result!.description || ""}\n   Price: ₹${e.result!.price.toLocaleString("en-IN")}/${e.result!.stockUnit} × ${qty} = *₹${total.toLocaleString("en-IN")}*`;
-    });
-    const message = `🛒 *Bulk Order (${orderItems.length} items)*\n\n${lines.join("\n\n")}\n\n----\n*Grand Total: ₹${grandTotal.toLocaleString("en-IN")}*`;
-    window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
   };
 
   const handleBulkClear = () => {
