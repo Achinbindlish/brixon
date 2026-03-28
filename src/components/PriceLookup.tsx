@@ -328,7 +328,7 @@ const PriceLookup = () => {
                           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{entry.result.articleNumber}</span>
                           {entry.result.description && <p className="text-sm text-foreground truncate">{entry.result.description}</p>}
                         </div>
-                        {isAdmin && <p className="text-xl font-bold tracking-tight text-foreground shrink-0">₹{entry.result.price.toLocaleString("en-IN")}</p>}
+                        
                       </div>
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-muted-foreground">Stock</span>
