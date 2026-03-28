@@ -348,11 +348,6 @@ const PriceLookup = () => {
                         <input type="number" min="1" value={entry.orderQty} onChange={(e) => updateBulkQty(i, e.target.value)}
                           placeholder={`Qty (${entry.result.stockUnit})`}
                            className="flex-1 h-9 px-3 rounded-md border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-shadow" />
-                        {isAdmin && entry.orderQty && Number(entry.orderQty) > 0 && (
-                          <span className="text-xs font-semibold text-foreground whitespace-nowrap">
-                            ₹{(entry.result.price * Number(entry.orderQty)).toLocaleString("en-IN")}
-                          </span>
-                        )}
                       </div>
                     </div>
                   );
