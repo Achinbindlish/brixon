@@ -112,16 +112,11 @@ const PriceLookup = () => {
     try {
       await placeOrder.mutateAsync(orderItems.map((e) => ({ article: e.result!, quantity: Number(e.orderQty) })));
       toast({ title: "Bulk order placed!", description: `${orderItems.length} items saved.` });
-      let grandTotal = 0;
       const lines = orderItems.map((e, i) => {
         const qty = Number(e.orderQty);
-        const total = e.result!.price * qty;
-        grandTotal += total;
-        const priceInfo = isAdmin ? `\n   Price: ₹${e.result!.price.toLocaleString("en-IN")}/${e.result!.stockUnit} × ${qty} = *₹${total.toLocaleString("en-IN")}*` : "";
-        return `${i + 1}. *${e.result!.articleNumber}* - ${e.result!.description || ""}\n   Qty: ${qty} ${e.result!.stockUnit}${priceInfo}`;
+        return `${i + 1}. *${e.result!.articleNumber}* - ${e.result!.description || ""}\n   Qty: ${qty} ${e.result!.stockUnit}`;
       });
-      const grandTotalLine = isAdmin ? `\n\n----\n*Grand Total: ₹${grandTotal.toLocaleString("en-IN")}*` : "";
-      const message = `🛒 *Bulk Order (${orderItems.length} items)*\n\n${lines.join("\n\n")}${grandTotalLine}`;
+      const message = `🛒 *Bulk Order (${orderItems.length} items)*\n\n${lines.join("\n\n")}`;
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
     } catch (err: any) {
       const msg = err?.message || "Failed to place order";
