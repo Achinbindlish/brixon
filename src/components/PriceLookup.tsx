@@ -236,6 +236,16 @@ const PriceLookup = () => {
                       {result.stockBreakdown.join(" + ")}
                     </p>
                   )}
+                  {result.stock > 0 && result.stock < 3.5 && (
+                    <div className="mt-2 px-3 py-2 rounded-md bg-destructive/10 border border-destructive/20">
+                      <p className="text-xs font-medium text-destructive">
+                        ⚠️ Low Stock, Please contact on{" "}
+                        <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" className="underline font-semibold">
+                          WhatsApp
+                        </a>
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <div className="pt-3 border-t border-border space-y-3">
                   <label className="text-xs font-medium text-foreground">Quantity ({result.stockUnit})</label>
@@ -332,6 +342,16 @@ const PriceLookup = () => {
                         <p className="text-xs text-muted-foreground text-right">
                           {entry.result.stockBreakdown.join(" + ")}
                         </p>
+                      )}
+                      {entry.result.stock > 0 && entry.result.stock < 3.5 && (
+                        <div className="mt-2 px-3 py-2 rounded-md bg-destructive/10 border border-destructive/20">
+                          <p className="text-xs font-medium text-destructive">
+                            ⚠️ Low Stock, Please contact on{" "}
+                            <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" className="underline font-semibold">
+                              WhatsApp
+                            </a>
+                          </p>
+                        </div>
                       )}
                       <div className="flex items-center gap-2 pt-1">
                         <input type="number" min="1" value={entry.orderQty} onChange={(e) => updateBulkQty(i, e.target.value)}
