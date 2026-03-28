@@ -64,7 +64,8 @@ const PriceLookup = () => {
       await placeOrder.mutateAsync([{ article: result, quantity: qty }]);
       toast({ title: "Order placed!", description: "Your order has been saved." });
       const total = result.price * qty;
-      const message = `🛒 *New Order*\n\nArticle: *${result.articleNumber}*\n${result.description ? `Description: ${result.description}\n` : ""}Quantity: *${qty} ${result.stockUnit}*`;
+      const priceInfo = isAdmin ? `\nPrice: ₹${result.price.toLocaleString("en-IN")}/${result.stockUnit}\nTotal: *₹${total.toLocaleString("en-IN")}*` : "";
+      const message = `🛒 *New Order*\n\nArticle: *${result.articleNumber}*\n${result.description ? `Description: ${result.description}\n` : ""}Quantity: *${qty} ${result.stockUnit}*${priceInfo}`;
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
     } catch (err: any) {
       const msg = err?.message || "Failed to place order";
@@ -113,11 +114,16 @@ const PriceLookup = () => {
     try {
       await placeOrder.mutateAsync(orderItems.map((e) => ({ article: e.result!, quantity: Number(e.orderQty) })));
       toast({ title: "Bulk order placed!", description: `${orderItems.length} items saved.` });
+      let grandTotal = 0;
       const lines = orderItems.map((e, i) => {
         const qty = Number(e.orderQty);
-        return `${i + 1}. *${e.result!.articleNumber}* - ${e.result!.description || ""}\n   Qty: ${qty} ${e.result!.stockUnit}`;
+        const total = e.result!.price * qty;
+        grandTotal += total;
+        const priceInfo = isAdmin ? `\n   Price: ₹${e.result!.price.toLocaleString("en-IN")}/${e.result!.stockUnit} × ${qty} = *₹${total.toLocaleString("en-IN")}*` : "";
+        return `${i + 1}. *${e.result!.articleNumber}* - ${e.result!.description || ""}\n   Qty: ${qty} ${e.result!.stockUnit}${priceInfo}`;
       });
-      const message = `🛒 *Bulk Order (${orderItems.length} items)*\n\n${lines.join("\n\n")}`;
+      const grandTotalLine = isAdmin ? `\n\n----\n*Grand Total: ₹${grandTotal.toLocaleString("en-IN")}*` : "";
+      const message = `🛒 *Bulk Order (${orderItems.length} items)*\n\n${lines.join("\n\n")}${grandTotalLine}`;
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
     } catch (err: any) {
       const msg = err?.message || "Failed to place order";
@@ -219,6 +225,12 @@ const PriceLookup = () => {
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{result.articleNumber}</span>
                 </div>
                 {result.description && <p className="text-sm text-foreground">{result.description}</p>}
+                {isAdmin && (
+                  <>
+                    <p className="text-3xl font-bold tracking-tight text-foreground">₹{result.price.toLocaleString("en-IN")}</p>
+                    <p className="text-xs text-muted-foreground">MRP with GST</p>
+                  </>
+                )}
                 <div className="pt-3 border-t border-border space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">Available Stock</span>
@@ -247,6 +259,9 @@ const PriceLookup = () => {
                   <input type="number" min="1" value={orderQty} onChange={(e) => setOrderQty(e.target.value)}
                     placeholder={`Enter ${result.stockUnit}s`}
                     className="w-full h-10 px-3 rounded-md border border-input bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-shadow" />
+                  {isAdmin && orderQty && Number(orderQty) > 0 && (
+                    <p className="text-xs text-muted-foreground">Total: <span className="font-semibold text-foreground">₹{(result.price * Number(orderQty)).toLocaleString("en-IN")}</span></p>
+                  )}
                   <button onClick={handlePlaceOrder} disabled={!orderQty || Number(orderQty) <= 0 || placeOrder.isPending}
                     className="w-full h-10 rounded-md bg-green-700 text-white font-medium text-sm flex items-center justify-center gap-2 hover:bg-green-800 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     <ShoppingCart className="h-4 w-4" /> {placeOrder.isPending ? "Placing..." : "Order via WhatsApp"}
@@ -322,7 +337,7 @@ const PriceLookup = () => {
                           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{entry.result.articleNumber}</span>
                           {entry.result.description && <p className="text-sm text-foreground truncate">{entry.result.description}</p>}
                         </div>
-                        
+                        {isAdmin && <p className="text-xl font-bold tracking-tight text-foreground shrink-0">₹{entry.result.price.toLocaleString("en-IN")}</p>}
                       </div>
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-muted-foreground">Stock</span>
@@ -348,7 +363,12 @@ const PriceLookup = () => {
                       <div className="flex items-center gap-2 pt-1">
                         <input type="number" min="1" value={entry.orderQty} onChange={(e) => updateBulkQty(i, e.target.value)}
                           placeholder={`Qty (${entry.result.stockUnit})`}
-                          className="flex-1 h-9 px-3 rounded-md border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-shadow" />
+                           className="flex-1 h-9 px-3 rounded-md border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-shadow" />
+                        {isAdmin && entry.orderQty && Number(entry.orderQty) > 0 && (
+                          <span className="text-xs font-semibold text-foreground whitespace-nowrap">
+                            ₹{(entry.result.price * Number(entry.orderQty)).toLocaleString("en-IN")}
+                          </span>
+                        )}
                       </div>
                     </div>
                   );
@@ -365,23 +385,34 @@ const PriceLookup = () => {
                           <tr className="border-b border-border">
                             <th className="px-4 py-2 text-left font-medium text-muted-foreground">#</th>
                             <th className="px-4 py-2 text-left font-medium text-muted-foreground">Article</th>
+                            {isAdmin && <th className="px-4 py-2 text-right font-medium text-muted-foreground">Price</th>}
                             <th className="px-4 py-2 text-right font-medium text-muted-foreground">Qty</th>
+                            {isAdmin && <th className="px-4 py-2 text-right font-medium text-muted-foreground">Total</th>}
                           </tr>
                         </thead>
                         <tbody>
                           {foundEntries.map((entry, i) => {
                             const qty = Number(entry.orderQty) || 0;
+                            const lineTotal = entry.result!.price * qty;
                             return (
                               <tr key={i} className="border-b border-border last:border-0">
                                 <td className="px-4 py-2 text-muted-foreground">{i + 1}</td>
                                 <td className="px-4 py-2 text-foreground font-medium">{entry.result!.articleNumber}</td>
+                                {isAdmin && <td className="px-4 py-2 text-right text-foreground">₹{entry.result!.price.toLocaleString("en-IN")}</td>}
                                 <td className="px-4 py-2 text-right text-foreground">{qty > 0 ? qty : "—"}</td>
+                                {isAdmin && <td className="px-4 py-2 text-right text-foreground font-medium">{qty > 0 ? `₹${lineTotal.toLocaleString("en-IN")}` : "—"}</td>}
                               </tr>
                             );
                           })}
                         </tbody>
                       </table>
                     </div>
+                    {isAdmin && bulkGrandTotal > 0 && (
+                      <div className="px-4 py-3 border-t border-border flex justify-between">
+                        <span className="text-xs font-semibold text-foreground">Grand Total</span>
+                        <span className="text-xs font-bold text-foreground">₹{bulkGrandTotal.toLocaleString("en-IN")}</span>
+                      </div>
+                    )}
                     <div className="p-4 border-t border-border">
                       <button onClick={handleBulkOrder} disabled={!hasValidBulkOrder || placeOrder.isPending}
                         className="w-full h-10 rounded-md bg-green-700 text-white font-medium text-sm flex items-center justify-center gap-2 hover:bg-green-800 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
