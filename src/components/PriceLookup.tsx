@@ -383,14 +383,6 @@ const PriceLookup = () => {
                             );
                           })}
                         </tbody>
-                        {bulkGrandTotal > 0 && (
-                          <tfoot>
-                            <tr>
-                              <td colSpan={4} className="px-4 py-2 text-right font-semibold text-foreground">Grand Total</td>
-                              <td className="px-4 py-2 text-right font-bold text-foreground">₹{bulkGrandTotal.toLocaleString("en-IN")}</td>
-                            </tr>
-                          </tfoot>
-                        )}
                       </table>
                     </div>
                     <div className="p-4 border-t border-border">
