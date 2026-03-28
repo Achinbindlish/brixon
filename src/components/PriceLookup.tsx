@@ -253,6 +253,9 @@ const PriceLookup = () => {
                   <input type="number" min="1" value={orderQty} onChange={(e) => setOrderQty(e.target.value)}
                     placeholder={`Enter ${result.stockUnit}s`}
                     className="w-full h-10 px-3 rounded-md border border-input bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-shadow" />
+                  {isAdmin && orderQty && Number(orderQty) > 0 && (
+                    <p className="text-xs text-muted-foreground">Total: <span className="font-semibold text-foreground">₹{(result.price * Number(orderQty)).toLocaleString("en-IN")}</span></p>
+                  )}
                   <button onClick={handlePlaceOrder} disabled={!orderQty || Number(orderQty) <= 0 || placeOrder.isPending}
                     className="w-full h-10 rounded-md bg-green-700 text-white font-medium text-sm flex items-center justify-center gap-2 hover:bg-green-800 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     <ShoppingCart className="h-4 w-4" /> {placeOrder.isPending ? "Placing..." : "Order via WhatsApp"}
