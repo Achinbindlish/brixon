@@ -479,7 +479,7 @@ Deno.serve(async (req) => {
       // Create order in Supabase for history
       const { data: orderData, error: orderError } = await supabase
         .from("orders")
-        .insert({ user_id: user.id, grand_total: grandTotal })
+        .insert({ user_id: userId, grand_total: grandTotal })
         .select("id")
         .single();
       if (orderError) throw orderError;
