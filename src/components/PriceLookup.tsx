@@ -326,19 +326,8 @@ const PriceLookup = () => {
                         </div>
                         
                       </div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Stock</span>
-                        <span className={entry.result.stock > 0 ? "text-green-700 font-semibold" : "text-destructive font-semibold"}>
-                          {entry.result.stock > 0 ? `${entry.result.stock} ${entry.result.stockUnit}` : "Out of stock"}
-                        </span>
-                      </div>
-                      {entry.result.stockBreakdown.length > 1 && (
-                        <p className="text-xs text-muted-foreground text-right">
-                          {entry.result.stockBreakdown.join(" + ")}
-                        </p>
-                      )}
-                      {entry.result.stock > 0 && entry.result.stock < 3.5 && (
-                        <div className="mt-2 px-3 py-2 rounded-md bg-destructive/10 border border-destructive/20">
+                      {entry.result.stock > 0 && entry.result.stock < 3.5 ? (
+                        <div className="px-3 py-2 rounded-md bg-destructive/10 border border-destructive/20">
                           <p className="text-xs font-medium text-destructive">
                             ⚠️ Low Stock, Please contact on{" "}
                             <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" className="underline font-semibold">
@@ -346,6 +335,20 @@ const PriceLookup = () => {
                             </a>
                           </p>
                         </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Stock</span>
+                            <span className={entry.result.stock > 0 ? "text-green-700 font-semibold" : "text-destructive font-semibold"}>
+                              {entry.result.stock > 0 ? `${entry.result.stock} ${entry.result.stockUnit}` : "Out of stock"}
+                            </span>
+                          </div>
+                          {entry.result.stockBreakdown.length > 1 && (
+                            <p className="text-xs text-muted-foreground text-right">
+                              {entry.result.stockBreakdown.join(" + ")}
+                            </p>
+                          )}
+                        </>
                       )}
                       <div className="flex items-center gap-2 pt-1">
                         <input type="number" min="1" value={entry.orderQty} onChange={(e) => updateBulkQty(i, e.target.value)}
