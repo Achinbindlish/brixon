@@ -222,8 +222,6 @@ const PriceLookup = () => {
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{result.articleNumber}</span>
                 </div>
                 {result.description && <p className="text-sm text-foreground">{result.description}</p>}
-                <p className="text-3xl font-bold tracking-tight text-foreground">₹{result.price.toLocaleString("en-IN")}</p>
-                <p className="text-xs text-muted-foreground">MRP with GST</p>
                 <div className="pt-3 border-t border-border space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">Available Stock</span>
