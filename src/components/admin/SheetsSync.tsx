@@ -188,13 +188,9 @@ const SheetsSync = () => {
             </p>
             <div className="flex flex-wrap gap-1.5 mt-1">
               {[
-                "ID",
                 "Article_No",
                 "Bundle_No",
-                "Category",
                 "Stock",
-                "Price",
-                "Last_Updated",
               ].map((col) => (
                 <code
                   key={col}

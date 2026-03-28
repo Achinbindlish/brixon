@@ -157,30 +157,22 @@ async function getConfig(supabase: any) {
   };
 }
 
-// Column layout: ID=0, Article_No=1, Bundle_No=2, Category=3, Stock=4, Price=5, Last_Updated=6
+// Column layout: Article_No=A(0), Bundle_No=B(1), Stock=C(2)
 
 type SheetRow = {
   rowIndex: number;
-  id: string;
   articleNo: string;
   bundleNo: string;
-  category: string;
   stock: number;
-  price: number;
-  lastUpdated: string;
 };
 
 function parseRows(values: string[][]): SheetRow[] {
   if (values.length < 2) return [];
   return values.slice(1).map((row, i) => ({
     rowIndex: i + 2, // 1-indexed, +1 for header
-    id: row[0] || "",
-    articleNo: (row[1] || "").trim(),
-    bundleNo: (row[2] || "").trim(),
-    category: (row[3] || "").trim(),
-    stock: Number(row[4] || 0),
-    price: Number(row[5] || 0),
-    lastUpdated: row[6] || "",
+    articleNo: (row[0] || "").trim(),
+    bundleNo: (row[1] || "").trim(),
+    stock: Number(row[2] || 0),
   }));
 }
 
@@ -195,8 +187,8 @@ function groupByArticle(rows: SheetRow[]) {
   return Array.from(grouped.entries()).map(([articleNo, bundles]) => ({
     id: articleNo,
     articleNumber: articleNo,
-    description: bundles[0].category,
-    price: bundles[0].price,
+    description: "",
+    price: 0,
     unit: "pc",
     stockUnit: "meter",
     stock: bundles.reduce((sum, b) => sum + b.stock, 0),
@@ -204,7 +196,6 @@ function groupByArticle(rows: SheetRow[]) {
     bundles: bundles.map((b) => ({
       bundleNo: b.bundleNo,
       stock: b.stock,
-      price: b.price,
       rowIndex: b.rowIndex,
     })),
   }));
@@ -387,8 +378,8 @@ Deno.serve(async (req) => {
       const result = {
         id: matching[0].articleNo,
         articleNumber: matching[0].articleNo,
-        description: matching[0].category,
-        price: matching[0].price,
+        description: "",
+        price: 0,
         unit: "pc",
         stockUnit: "meter",
         stock: matching.reduce((sum, b) => sum + b.stock, 0),
@@ -396,7 +387,6 @@ Deno.serve(async (req) => {
         bundles: matching.map((b) => ({
           bundleNo: b.bundleNo,
           stock: b.stock,
-          price: b.price,
           rowIndex: b.rowIndex,
         })),
       };
@@ -420,16 +410,12 @@ Deno.serve(async (req) => {
       }
 
       const token = await getAccessToken(config.serviceAccountJson);
-      // Always fetch fresh data before updating
       const values = await getSheetData(token, config.sheetId, config.sheetName);
       const allRows = parseRows(values);
 
       let grandTotal = 0;
       const orderItemsData: any[] = [];
-      const stockUpdates: {
-        rowIndex: number;
-        newStock: number;
-      }[] = [];
+      const stockUpdates: { rowIndex: number; newStock: number }[] = [];
 
       for (const item of items) {
         const { article_no, quantity } = item;
@@ -465,34 +451,26 @@ Deno.serve(async (req) => {
           remaining -= deduct;
         }
 
-        const price = bundles[0].price;
-        const total = price * quantity;
+        const total = 0; // No price in sheet
         grandTotal += total;
 
         orderItemsData.push({
           article_number: bundles[0].articleNo,
-          description: bundles[0].category,
-          price,
+          description: "",
+          price: 0,
           quantity,
           total,
           stock_unit: "meter",
         });
       }
 
-      // Update Google Sheet stock values
-      const now = new Date().toISOString();
+      // Update Google Sheet stock values (column C)
       for (const update of stockUpdates) {
         await updateSheetCell(
           token,
           config.sheetId,
-          `${config.sheetName}!E${update.rowIndex}`,
+          `${config.sheetName}!C${update.rowIndex}`,
           String(update.newStock)
-        );
-        await updateSheetCell(
-          token,
-          config.sheetId,
-          `${config.sheetName}!G${update.rowIndex}`,
-          now
         );
       }
 
@@ -548,37 +526,14 @@ Deno.serve(async (req) => {
       );
       if (!target) throw new Error("Bundle not found");
 
-      const now = new Date().toISOString();
       if (updateData.stock !== undefined) {
         await updateSheetCell(
           token,
           config.sheetId,
-          `${config.sheetName}!E${target.rowIndex}`,
+          `${config.sheetName}!C${target.rowIndex}`,
           String(updateData.stock)
         );
       }
-      if (updateData.price !== undefined) {
-        await updateSheetCell(
-          token,
-          config.sheetId,
-          `${config.sheetName}!F${target.rowIndex}`,
-          String(updateData.price)
-        );
-      }
-      if (updateData.category !== undefined) {
-        await updateSheetCell(
-          token,
-          config.sheetId,
-          `${config.sheetName}!D${target.rowIndex}`,
-          updateData.category
-        );
-      }
-      await updateSheetCell(
-        token,
-        config.sheetId,
-        `${config.sheetName}!G${target.rowIndex}`,
-        now
-      );
 
       return new Response(
         JSON.stringify({ success: true, message: "Row updated" }),
@@ -588,7 +543,7 @@ Deno.serve(async (req) => {
 
     // === ADD ROW (Admin) ===
     if (action === "add-row") {
-      const { article_no, bundle_no, category, stock, price } = body;
+      const { article_no, bundle_no, stock } = body;
       if (!article_no || !bundle_no)
         throw new Error("Invalid input: article_no and bundle_no required");
 
@@ -608,16 +563,10 @@ Deno.serve(async (req) => {
       );
       if (exists) throw new Error("Bundle already exists");
 
-      const newId = String(rows.length + 1);
-      const now = new Date().toISOString();
       await appendSheetRow(token, config.sheetId, config.sheetName, [
-        newId,
         article_no,
         bundle_no,
-        category || "",
         String(stock || 0),
-        String(price || 0),
-        now,
       ]);
 
       return new Response(
