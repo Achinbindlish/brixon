@@ -368,9 +368,7 @@ const PriceLookup = () => {
                           <tr className="border-b border-border">
                             <th className="px-4 py-2 text-left font-medium text-muted-foreground">#</th>
                             <th className="px-4 py-2 text-left font-medium text-muted-foreground">Article</th>
-                            <th className="px-4 py-2 text-right font-medium text-muted-foreground">Price</th>
                             <th className="px-4 py-2 text-right font-medium text-muted-foreground">Qty</th>
-                            <th className="px-4 py-2 text-right font-medium text-muted-foreground">Total</th>
                           </tr>
                         </thead>
                         <tbody>
