@@ -387,11 +387,14 @@ const PriceLookup = () => {
                         <tbody>
                           {foundEntries.map((entry, i) => {
                             const qty = Number(entry.orderQty) || 0;
+                            const lineTotal = entry.result!.price * qty;
                             return (
                               <tr key={i} className="border-b border-border last:border-0">
                                 <td className="px-4 py-2 text-muted-foreground">{i + 1}</td>
                                 <td className="px-4 py-2 text-foreground font-medium">{entry.result!.articleNumber}</td>
+                                {isAdmin && <td className="px-4 py-2 text-right text-foreground">₹{entry.result!.price.toLocaleString("en-IN")}</td>}
                                 <td className="px-4 py-2 text-right text-foreground">{qty > 0 ? qty : "—"}</td>
+                                {isAdmin && <td className="px-4 py-2 text-right text-foreground font-medium">{qty > 0 ? `₹${lineTotal.toLocaleString("en-IN")}` : "—"}</td>}
                               </tr>
                             );
                           })}
