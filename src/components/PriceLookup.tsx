@@ -401,6 +401,12 @@ const PriceLookup = () => {
                         </tbody>
                       </table>
                     </div>
+                    {isAdmin && bulkGrandTotal > 0 && (
+                      <div className="px-4 py-3 border-t border-border flex justify-between">
+                        <span className="text-xs font-semibold text-foreground">Grand Total</span>
+                        <span className="text-xs font-bold text-foreground">₹{bulkGrandTotal.toLocaleString("en-IN")}</span>
+                      </div>
+                    )}
                     <div className="p-4 border-t border-border">
                       <button onClick={handleBulkOrder} disabled={!hasValidBulkOrder || placeOrder.isPending}
                         className="w-full h-10 rounded-md bg-green-700 text-white font-medium text-sm flex items-center justify-center gap-2 hover:bg-green-800 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
