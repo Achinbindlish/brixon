@@ -157,13 +157,14 @@ async function getConfig(supabase: any) {
   };
 }
 
-// Column layout: Article_No=A(0), Bundle_No=B(1), Stock=C(2)
+// Column layout: Article_No=A(0), Bundle_No=B(1), Stock=C(2), Price Per Meter=D(3)
 
 type SheetRow = {
   rowIndex: number;
   articleNo: string;
   bundleNo: string;
   stock: number;
+  pricePerMeter: number;
 };
 
 function parseRows(values: string[][]): SheetRow[] {
@@ -173,6 +174,7 @@ function parseRows(values: string[][]): SheetRow[] {
     articleNo: (row[0] || "").trim(),
     bundleNo: (row[1] || "").trim(),
     stock: Number(row[2] || 0),
+    pricePerMeter: Number(row[3] || 0),
   }));
 }
 
