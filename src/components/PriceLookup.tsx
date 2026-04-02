@@ -339,7 +339,9 @@ const PriceLookup = () => {
                           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{entry.result.articleNumber}</span>
                           {entry.result.description && <p className="text-sm text-foreground truncate">{entry.result.description}</p>}
                         </div>
-                        
+                        {entry.result.price > 0 && (
+                          <span className="text-xs font-semibold text-foreground shrink-0">₹{entry.result.price}/m</span>
+                        )}
                       </div>
                       {entry.result.stock > 0 && entry.result.stock < 3.5 ? (
                         <div className="px-3 py-2 rounded-md bg-destructive/10 border border-destructive/20">
@@ -370,6 +372,12 @@ const PriceLookup = () => {
                           placeholder={`Qty (${entry.result.stockUnit})`}
                            className="flex-1 h-9 px-3 rounded-md border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-shadow" />
                       </div>
+                      {entry.orderQty && Number(entry.orderQty) > 0 && entry.result.price > 0 && (
+                        <div className="flex items-center justify-between px-3 py-1.5 rounded-md bg-accent/50 text-xs">
+                          <span className="text-muted-foreground">Amount</span>
+                          <span className="font-bold text-foreground">₹{(entry.result.price * Number(entry.orderQty)).toLocaleString("en-IN")}</span>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
