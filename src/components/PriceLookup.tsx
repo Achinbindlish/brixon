@@ -394,20 +394,31 @@ const PriceLookup = () => {
                             <th className="px-4 py-2 text-left font-medium text-muted-foreground">#</th>
                             <th className="px-4 py-2 text-left font-medium text-muted-foreground">Article</th>
                             <th className="px-4 py-2 text-right font-medium text-muted-foreground">Qty</th>
+                            <th className="px-4 py-2 text-right font-medium text-muted-foreground">Amount</th>
                           </tr>
                         </thead>
                         <tbody>
                           {foundEntries.map((entry, i) => {
                             const qty = Number(entry.orderQty) || 0;
+                            const itemTotal = entry.result!.price * qty;
                             return (
                               <tr key={i} className="border-b border-border last:border-0">
                                 <td className="px-4 py-2 text-muted-foreground">{i + 1}</td>
                                 <td className="px-4 py-2 text-foreground font-medium">{entry.result!.articleNumber}</td>
                                 <td className="px-4 py-2 text-right text-foreground">{qty > 0 ? qty : "—"}</td>
+                                <td className="px-4 py-2 text-right text-foreground">{qty > 0 && entry.result!.price > 0 ? `₹${itemTotal.toLocaleString("en-IN")}` : "—"}</td>
                               </tr>
                             );
                           })}
                         </tbody>
+                        {bulkGrandTotal > 0 && (
+                          <tfoot>
+                            <tr className="border-t border-border">
+                              <td colSpan={3} className="px-4 py-2 text-right font-semibold text-foreground">Grand Total</td>
+                              <td className="px-4 py-2 text-right font-bold text-foreground">₹{bulkGrandTotal.toLocaleString("en-IN")}</td>
+                            </tr>
+                          </tfoot>
+                        )}
                       </table>
                     </div>
                     <div className="p-4 border-t border-border">
