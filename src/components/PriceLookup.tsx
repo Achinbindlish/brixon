@@ -60,10 +60,11 @@ const PriceLookup = () => {
   const handlePlaceOrder = async () => {
     if (!result || !orderQty || Number(orderQty) <= 0) return;
     const qty = Number(orderQty);
+    const totalAmount = result.price * qty;
     try {
       await placeOrder.mutateAsync([{ article: result, quantity: qty }]);
       toast({ title: "Order placed!", description: "Your order has been saved." });
-      const message = `🛒 *New Order*\n\nArticle: *${result.articleNumber}*\n${result.description ? `Description: ${result.description}\n` : ""}Quantity: *${qty} ${result.stockUnit}*`;
+      const message = `🛒 *New Order*\n\nArticle: *${result.articleNumber}*\n${result.description ? `Description: ${result.description}\n` : ""}Quantity: *${qty} ${result.stockUnit}*\nPrice: *₹${result.price}/meter*\nTotal Amount: *₹${totalAmount.toLocaleString("en-IN")}*`;
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
     } catch (err: any) {
       const msg = err?.message || "Failed to place order";
