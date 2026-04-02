@@ -222,6 +222,12 @@ const PriceLookup = () => {
                 </div>
                 {result.description && <p className="text-sm text-foreground">{result.description}</p>}
                 <div className="pt-3 border-t border-border space-y-1">
+                  {result.price > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Price Per Meter</span>
+                      <span className="text-sm font-semibold text-foreground">₹{result.price}</span>
+                    </div>
+                  )}
                   {result.stock > 0 && result.stock < 3.5 ? (
                     <div className="px-3 py-2 rounded-md bg-destructive/10 border border-destructive/20">
                       <p className="text-xs font-medium text-destructive">
@@ -252,6 +258,12 @@ const PriceLookup = () => {
                   <input type="number" min="1" value={orderQty} onChange={(e) => setOrderQty(e.target.value)}
                     placeholder={`Enter ${result.stockUnit}s`}
                     className="w-full h-10 px-3 rounded-md border border-input bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-shadow" />
+                  {orderQty && Number(orderQty) > 0 && result.price > 0 && (
+                    <div className="flex items-center justify-between px-3 py-2 rounded-md bg-accent/50">
+                      <span className="text-xs font-medium text-muted-foreground">Total Amount</span>
+                      <span className="text-sm font-bold text-foreground">₹{(result.price * Number(orderQty)).toLocaleString("en-IN")}</span>
+                    </div>
+                  )}
                   <button onClick={handlePlaceOrder} disabled={!orderQty || Number(orderQty) <= 0 || placeOrder.isPending}
                     className="w-full h-10 rounded-md bg-green-700 text-white font-medium text-sm flex items-center justify-center gap-2 hover:bg-green-800 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     <ShoppingCart className="h-4 w-4" /> {placeOrder.isPending ? "Placing..." : "Order via WhatsApp"}
