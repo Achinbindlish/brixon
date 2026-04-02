@@ -383,7 +383,7 @@ Deno.serve(async (req) => {
         id: matching[0].articleNo,
         articleNumber: matching[0].articleNo,
         description: "",
-        price: 0,
+        price: matching[0].pricePerMeter || 0,
         unit: "pc",
         stockUnit: "meter",
         stock: matching.reduce((sum, b) => sum + b.stock, 0),
