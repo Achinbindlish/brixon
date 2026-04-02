@@ -157,13 +157,14 @@ async function getConfig(supabase: any) {
   };
 }
 
-// Column layout: Article_No=A(0), Bundle_No=B(1), Stock=C(2)
+// Column layout: Article_No=A(0), Bundle_No=B(1), Stock=C(2), Price Per Meter=D(3)
 
 type SheetRow = {
   rowIndex: number;
   articleNo: string;
   bundleNo: string;
   stock: number;
+  pricePerMeter: number;
 };
 
 function parseRows(values: string[][]): SheetRow[] {
@@ -173,6 +174,7 @@ function parseRows(values: string[][]): SheetRow[] {
     articleNo: (row[0] || "").trim(),
     bundleNo: (row[1] || "").trim(),
     stock: Number(row[2] || 0),
+    pricePerMeter: Number(row[3] || 0),
   }));
 }
 
@@ -188,7 +190,7 @@ function groupByArticle(rows: SheetRow[]) {
     id: articleNo,
     articleNumber: articleNo,
     description: "",
-    price: 0,
+    price: bundles[0]?.pricePerMeter || 0,
     unit: "pc",
     stockUnit: "meter",
     stock: bundles.reduce((sum, b) => sum + b.stock, 0),
@@ -381,7 +383,7 @@ Deno.serve(async (req) => {
         id: matching[0].articleNo,
         articleNumber: matching[0].articleNo,
         description: "",
-        price: 0,
+        price: matching[0].pricePerMeter || 0,
         unit: "pc",
         stockUnit: "meter",
         stock: matching.reduce((sum, b) => sum + b.stock, 0),

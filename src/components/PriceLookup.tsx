@@ -60,10 +60,11 @@ const PriceLookup = () => {
   const handlePlaceOrder = async () => {
     if (!result || !orderQty || Number(orderQty) <= 0) return;
     const qty = Number(orderQty);
+    const totalAmount = result.price * qty;
     try {
       await placeOrder.mutateAsync([{ article: result, quantity: qty }]);
       toast({ title: "Order placed!", description: "Your order has been saved." });
-      const message = `🛒 *New Order*\n\nArticle: *${result.articleNumber}*\n${result.description ? `Description: ${result.description}\n` : ""}Quantity: *${qty} ${result.stockUnit}*`;
+      const message = `🛒 *New Order*\n\nArticle: *${result.articleNumber}*\n${result.description ? `Description: ${result.description}\n` : ""}Quantity: *${qty} ${result.stockUnit}*\nPrice: *₹${result.price}/meter*\nTotal Amount: *₹${totalAmount.toLocaleString("en-IN")}*`;
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
     } catch (err: any) {
       const msg = err?.message || "Failed to place order";
@@ -114,9 +115,11 @@ const PriceLookup = () => {
       toast({ title: "Bulk order placed!", description: `${orderItems.length} items saved.` });
       const lines = orderItems.map((e, i) => {
         const qty = Number(e.orderQty);
-        return `${i + 1}. *${e.result!.articleNumber}* - ${e.result!.description || ""}\n   Qty: ${qty} ${e.result!.stockUnit}`;
+        const itemTotal = e.result!.price * qty;
+        return `${i + 1}. *${e.result!.articleNumber}* - ${e.result!.description || ""}\n   Qty: ${qty} ${e.result!.stockUnit}\n   Price: ₹${e.result!.price}/meter\n   Amount: ₹${itemTotal.toLocaleString("en-IN")}`;
       });
-      const message = `🛒 *Bulk Order (${orderItems.length} items)*\n\n${lines.join("\n\n")}`;
+      const grandTotal = orderItems.reduce((sum, e) => sum + e.result!.price * Number(e.orderQty), 0);
+      const message = `🛒 *Bulk Order (${orderItems.length} items)*\n\n${lines.join("\n\n")}\n\n*Grand Total: ₹${grandTotal.toLocaleString("en-IN")}*`;
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
     } catch (err: any) {
       const msg = err?.message || "Failed to place order";
@@ -219,6 +222,12 @@ const PriceLookup = () => {
                 </div>
                 {result.description && <p className="text-sm text-foreground">{result.description}</p>}
                 <div className="pt-3 border-t border-border space-y-1">
+                  {result.price > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Price Per Meter</span>
+                      <span className="text-sm font-semibold text-foreground">₹{result.price}</span>
+                    </div>
+                  )}
                   {result.stock > 0 && result.stock < 3.5 ? (
                     <div className="px-3 py-2 rounded-md bg-destructive/10 border border-destructive/20">
                       <p className="text-xs font-medium text-destructive">
@@ -249,6 +258,12 @@ const PriceLookup = () => {
                   <input type="number" min="1" value={orderQty} onChange={(e) => setOrderQty(e.target.value)}
                     placeholder={`Enter ${result.stockUnit}s`}
                     className="w-full h-10 px-3 rounded-md border border-input bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-shadow" />
+                  {orderQty && Number(orderQty) > 0 && result.price > 0 && (
+                    <div className="flex items-center justify-between px-3 py-2 rounded-md bg-accent/50">
+                      <span className="text-xs font-medium text-muted-foreground">Total Amount</span>
+                      <span className="text-sm font-bold text-foreground">₹{(result.price * Number(orderQty)).toLocaleString("en-IN")}</span>
+                    </div>
+                  )}
                   <button onClick={handlePlaceOrder} disabled={!orderQty || Number(orderQty) <= 0 || placeOrder.isPending}
                     className="w-full h-10 rounded-md bg-green-700 text-white font-medium text-sm flex items-center justify-center gap-2 hover:bg-green-800 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     <ShoppingCart className="h-4 w-4" /> {placeOrder.isPending ? "Placing..." : "Order via WhatsApp"}
@@ -324,7 +339,9 @@ const PriceLookup = () => {
                           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{entry.result.articleNumber}</span>
                           {entry.result.description && <p className="text-sm text-foreground truncate">{entry.result.description}</p>}
                         </div>
-                        
+                        {entry.result.price > 0 && (
+                          <span className="text-xs font-semibold text-foreground shrink-0">₹{entry.result.price}/m</span>
+                        )}
                       </div>
                       {entry.result.stock > 0 && entry.result.stock < 3.5 ? (
                         <div className="px-3 py-2 rounded-md bg-destructive/10 border border-destructive/20">
@@ -355,6 +372,12 @@ const PriceLookup = () => {
                           placeholder={`Qty (${entry.result.stockUnit})`}
                            className="flex-1 h-9 px-3 rounded-md border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-shadow" />
                       </div>
+                      {entry.orderQty && Number(entry.orderQty) > 0 && entry.result.price > 0 && (
+                        <div className="flex items-center justify-between px-3 py-1.5 rounded-md bg-accent/50 text-xs">
+                          <span className="text-muted-foreground">Amount</span>
+                          <span className="font-bold text-foreground">₹{(entry.result.price * Number(entry.orderQty)).toLocaleString("en-IN")}</span>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -371,20 +394,31 @@ const PriceLookup = () => {
                             <th className="px-4 py-2 text-left font-medium text-muted-foreground">#</th>
                             <th className="px-4 py-2 text-left font-medium text-muted-foreground">Article</th>
                             <th className="px-4 py-2 text-right font-medium text-muted-foreground">Qty</th>
+                            <th className="px-4 py-2 text-right font-medium text-muted-foreground">Amount</th>
                           </tr>
                         </thead>
                         <tbody>
                           {foundEntries.map((entry, i) => {
                             const qty = Number(entry.orderQty) || 0;
+                            const itemTotal = entry.result!.price * qty;
                             return (
                               <tr key={i} className="border-b border-border last:border-0">
                                 <td className="px-4 py-2 text-muted-foreground">{i + 1}</td>
                                 <td className="px-4 py-2 text-foreground font-medium">{entry.result!.articleNumber}</td>
                                 <td className="px-4 py-2 text-right text-foreground">{qty > 0 ? qty : "—"}</td>
+                                <td className="px-4 py-2 text-right text-foreground">{qty > 0 && entry.result!.price > 0 ? `₹${itemTotal.toLocaleString("en-IN")}` : "—"}</td>
                               </tr>
                             );
                           })}
                         </tbody>
+                        {bulkGrandTotal > 0 && (
+                          <tfoot>
+                            <tr className="border-t border-border">
+                              <td colSpan={3} className="px-4 py-2 text-right font-semibold text-foreground">Grand Total</td>
+                              <td className="px-4 py-2 text-right font-bold text-foreground">₹{bulkGrandTotal.toLocaleString("en-IN")}</td>
+                            </tr>
+                          </tfoot>
+                        )}
                       </table>
                     </div>
                     <div className="p-4 border-t border-border">
