@@ -115,9 +115,11 @@ const PriceLookup = () => {
       toast({ title: "Bulk order placed!", description: `${orderItems.length} items saved.` });
       const lines = orderItems.map((e, i) => {
         const qty = Number(e.orderQty);
-        return `${i + 1}. *${e.result!.articleNumber}* - ${e.result!.description || ""}\n   Qty: ${qty} ${e.result!.stockUnit}`;
+        const itemTotal = e.result!.price * qty;
+        return `${i + 1}. *${e.result!.articleNumber}* - ${e.result!.description || ""}\n   Qty: ${qty} ${e.result!.stockUnit}\n   Price: ₹${e.result!.price}/meter\n   Amount: ₹${itemTotal.toLocaleString("en-IN")}`;
       });
-      const message = `🛒 *Bulk Order (${orderItems.length} items)*\n\n${lines.join("\n\n")}`;
+      const grandTotal = orderItems.reduce((sum, e) => sum + e.result!.price * Number(e.orderQty), 0);
+      const message = `🛒 *Bulk Order (${orderItems.length} items)*\n\n${lines.join("\n\n")}\n\n*Grand Total: ₹${grandTotal.toLocaleString("en-IN")}*`;
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
     } catch (err: any) {
       const msg = err?.message || "Failed to place order";
