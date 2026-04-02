@@ -190,7 +190,7 @@ function groupByArticle(rows: SheetRow[]) {
     id: articleNo,
     articleNumber: articleNo,
     description: "",
-    price: 0,
+    price: bundles[0]?.pricePerMeter || 0,
     unit: "pc",
     stockUnit: "meter",
     stock: bundles.reduce((sum, b) => sum + b.stock, 0),
