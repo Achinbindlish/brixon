@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Search, ShoppingCart, Plus, Trash2, List, LogOut, Loader2, Settings } from "lucide-react";
+import { Search, ShoppingCart, Plus, Trash2, List, LogOut, Loader as Loader2, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import brixonLogo from "@/assets/brixon-logo.png";
 import { useArticles, type ArticleWithStock } from "@/hooks/useArticles";

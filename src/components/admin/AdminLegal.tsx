@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, Save } from "lucide-react";
+import { Loader as Loader2, Save } from "lucide-react";
 import { useAllLegalPages, useUpsertLegalPage, type LegalPage } from "@/hooks/useLegalPages";
 import { toast } from "@/hooks/use-toast";
 

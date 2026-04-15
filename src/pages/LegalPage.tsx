@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader as Loader2 } from "lucide-react";
 import { useLegalPage } from "@/hooks/useLegalPages";
 
 const VALID_SLUGS = ["privacy-policy", "terms", "contact"];
