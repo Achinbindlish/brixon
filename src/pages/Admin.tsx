@@ -2,16 +2,17 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Navigate, useNavigate } from "react-router-dom";
-import { Loader2, ArrowLeft, Package, ClipboardList, RefreshCw, Users } from "lucide-react";
+import { Loader2, ArrowLeft, Package, ClipboardList, RefreshCw, Users, FileText } from "lucide-react";
 import AdminOrders from "@/components/admin/AdminOrders";
 import AdminArticles from "@/components/admin/AdminArticles";
 import SheetsSync from "@/components/admin/SheetsSync";
 import AdminUsers from "@/components/admin/AdminUsers";
+import AdminLegal from "@/components/admin/AdminLegal";
 
 const Admin = () => {
   const { user, loading: authLoading } = useAuth();
   const { data: isAdmin, isLoading: roleLoading } = useIsAdmin();
-  const [tab, setTab] = useState<"orders" | "articles" | "sync" | "users">("orders");
+  const [tab, setTab] = useState<"orders" | "articles" | "sync" | "users" | "legal">("orders");
   const navigate = useNavigate();
 
   if (authLoading || roleLoading) {
@@ -30,6 +31,7 @@ const Admin = () => {
     { id: "articles" as const, label: "Articles", icon: Package },
     { id: "sync" as const, label: "Sync", icon: RefreshCw },
     { id: "users" as const, label: "Users", icon: Users },
+    { id: "legal" as const, label: "Legal", icon: FileText },
   ];
 
   return (
@@ -67,6 +69,7 @@ const Admin = () => {
         {tab === "articles" && <AdminArticles />}
         {tab === "sync" && <SheetsSync />}
         {tab === "users" && <AdminUsers />}
+        {tab === "legal" && <AdminLegal />}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, ShoppingCart, Plus, Trash2, List, LogOut, Loader2, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 import brixonLogo from "@/assets/brixon-logo.png";
 import { useArticles, type ArticleWithStock } from "@/hooks/useArticles";
 import { usePlaceOrder } from "@/hooks/useOrders";
@@ -437,7 +438,17 @@ const PriceLookup = () => {
             )}
           </div>
         )}
-        <div className="pb-6" />
+        <footer className="mt-auto pt-8 pb-4 flex items-center justify-center gap-4">
+          <Link to="/legal/privacy-policy" className="text-xs text-muted-foreground underline hover:text-foreground transition-colors">
+            Privacy Policy
+          </Link>
+          <Link to="/legal/terms" className="text-xs text-muted-foreground underline hover:text-foreground transition-colors">
+            Terms &amp; Conditions
+          </Link>
+          <Link to="/legal/contact" className="text-xs text-muted-foreground underline hover:text-foreground transition-colors">
+            Contact
+          </Link>
+        </footer>
       </main>
     </div>
   );
