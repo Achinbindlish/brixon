@@ -1,5 +1,5 @@
 import { useNavigate, useRouteError } from "react-router-dom";
-import { AlertTriangle } from "lucide-react";
+import { TriangleAlert as AlertTriangle } from "lucide-react";
 
 const ErrorPage = () => {
   const error = useRouteError() as { statusText?: string; message?: string } | null;
