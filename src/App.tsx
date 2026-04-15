@@ -10,11 +10,8 @@ import Auth from "./pages/Auth.tsx";
 import Admin from "./pages/Admin.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import NotFound from "./pages/NotFound.tsx";
-import LegalPage from "./pages/LegalPage.tsx";
-import Offline from "./pages/Offline.tsx";
-import ErrorPage from "./pages/ErrorPage.tsx";
 import Preloader from "@/components/Preloader";
-import { Loader as Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
 
@@ -49,9 +46,6 @@ const App = () => {
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-              <Route path="/legal/:slug" element={<LegalPage />} />
-              <Route path="/offline" element={<Offline />} />
-              <Route path="/error" element={<ErrorPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
