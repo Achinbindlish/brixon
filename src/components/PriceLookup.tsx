@@ -40,6 +40,8 @@ const PriceLookup = () => {
     Array.from({ length: 10 }, () => ({ articleNumber: "", result: null, notFound: false, orderQty: "" }))
   );
   const [bulkSearched, setBulkSearched] = useState(false);
+  const [whatsappConfirmOpen, setWhatsappConfirmOpen] = useState(false);
+  const [pendingWhatsappMessage, setPendingWhatsappMessage] = useState<string | null>(null);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
