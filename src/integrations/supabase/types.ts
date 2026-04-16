@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_content: {
+        Row: {
+          body: string
+          content_key: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          content_key: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          content_key?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       articles: {
         Row: {
           article_number: string

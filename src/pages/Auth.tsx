@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import { Loader2, ArrowLeft } from "lucide-react";
@@ -134,6 +134,14 @@ const Auth = () => {
             </button>
           </form>
         )}
+
+        <div className="flex items-center justify-center gap-3 pt-4 text-[11px] text-muted-foreground">
+          <Link to="/page/privacy-policy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+          <span>·</span>
+          <Link to="/page/terms" className="hover:text-foreground transition-colors">Terms</Link>
+          <span>·</span>
+          <Link to="/page/contacts" className="hover:text-foreground transition-colors">Contact</Link>
+        </div>
       </div>
     </div>
   );
