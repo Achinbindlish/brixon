@@ -7,6 +7,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 const WHATSAPP_NUMBER = "918076173815";
 
@@ -36,6 +40,8 @@ const PriceLookup = () => {
     Array.from({ length: 10 }, () => ({ articleNumber: "", result: null, notFound: false, orderQty: "" }))
   );
   const [bulkSearched, setBulkSearched] = useState(false);
+  const [whatsappConfirmOpen, setWhatsappConfirmOpen] = useState(false);
+  const [pendingWhatsappMessage, setPendingWhatsappMessage] = useState<string | null>(null);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
@@ -65,7 +71,8 @@ const PriceLookup = () => {
       await placeOrder.mutateAsync([{ article: result, quantity: qty }]);
       toast({ title: "Order placed!", description: "Your order has been saved." });
       const message = `🛒 *New Order*\n\nArticle: *${result.articleNumber}*\n${result.description ? `Description: ${result.description}\n` : ""}Quantity: *${qty} ${result.stockUnit}*\nPrice: *₹${result.price}/meter*\nTotal Amount: *₹${totalAmount.toLocaleString("en-IN")}*`;
-      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
+      setPendingWhatsappMessage(message);
+      setWhatsappConfirmOpen(true);
     } catch (err: any) {
       const msg = err?.message || "Failed to place order";
       const isStock = msg.toLowerCase().includes("insufficient stock");
@@ -120,7 +127,8 @@ const PriceLookup = () => {
       });
       const grandTotal = orderItems.reduce((sum, e) => sum + e.result!.price * Number(e.orderQty), 0);
       const message = `🛒 *Bulk Order (${orderItems.length} items)*\n\n${lines.join("\n\n")}\n\n*Grand Total: ₹${grandTotal.toLocaleString("en-IN")}*`;
-      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
+      setPendingWhatsappMessage(message);
+      setWhatsappConfirmOpen(true);
     } catch (err: any) {
       const msg = err?.message || "Failed to place order";
       const isStock = msg.toLowerCase().includes("insufficient stock");
@@ -439,6 +447,33 @@ const PriceLookup = () => {
         )}
         <div className="pb-6" />
       </main>
+      <AlertDialog open={whatsappConfirmOpen} onOpenChange={setWhatsappConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>You're going to order on WhatsApp</AlertDialogTitle>
+            <AlertDialogDescription>
+              You will be redirected to WhatsApp to send your order. Do you want to continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => { setWhatsappConfirmOpen(false); setPendingWhatsappMessage(null); }}>
+              Deny
+            </AlertDialogCancel>
+            <AlertDialogAction
+              autoFocus
+              onClick={() => {
+                if (pendingWhatsappMessage) {
+                  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(pendingWhatsappMessage)}`, "_blank");
+                }
+                setPendingWhatsappMessage(null);
+                setWhatsappConfirmOpen(false);
+              }}
+            >
+              Allow
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
