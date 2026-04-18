@@ -213,26 +213,14 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) throw new Error("Not authenticated");
-
-    const token = authHeader.replace("Bearer ", "");
-    const userClient = createClient(
-      supabaseUrl,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
-    const {
-      data: claimsData,
-      error: authError,
-    } = await userClient.auth.getClaims(token);
-    const userId = claimsData?.claims?.sub;
-    if (authError || !userId) throw new Error("Not authenticated");
-
     const body = await req.json();
-    const { action } = body;
+    const { action } = body ?? {};
+    if (!action || typeof action !== "string") {
+      throw new Error("Invalid input: action is required");
+    }
 
     const adminActions = [
       "save-config",
@@ -240,7 +228,28 @@ Deno.serve(async (req) => {
       "update-row",
       "add-row",
     ];
+    const publicActions = ["get-all", "search", "process-order"];
+    if (!adminActions.includes(action) && !publicActions.includes(action)) {
+      throw new Error("Invalid input: unknown action");
+    }
+
+    const authHeader = req.headers.get("Authorization");
+    let userId: string | null = null;
+
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.replace("Bearer ", "");
+      const userClient = createClient(supabaseUrl, anonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: claimsData, error: authError } = await userClient.auth.getClaims(token);
+
+      if (!authError) {
+        userId = claimsData?.claims?.sub ?? null;
+      }
+    }
+
     if (adminActions.includes(action)) {
+      if (!userId) throw new Error("Not authenticated");
       const { data: isAdmin } = await supabase.rpc("has_role", {
         _user_id: userId,
         _role: "admin",
