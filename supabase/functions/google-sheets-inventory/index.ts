@@ -215,7 +215,23 @@ Deno.serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
-    const body = await req.json().catch(() => ({}));
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) throw new Error("Not authenticated");
+
+    const token = authHeader.replace("Bearer ", "");
+    const userClient = createClient(
+      supabaseUrl,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const {
+      data: claimsData,
+      error: authError,
+    } = await userClient.auth.getClaims(token);
+    const userId = claimsData?.claims?.sub;
+    if (authError || !userId) throw new Error("Not authenticated");
+
+    const body = await req.json();
     const { action } = body;
 
     const adminActions = [
@@ -224,33 +240,11 @@ Deno.serve(async (req) => {
       "update-row",
       "add-row",
     ];
-
-    let userId: string | null = null;
-
     if (adminActions.includes(action)) {
-      const authHeader = req.headers.get("Authorization");
-      if (!authHeader?.startsWith("Bearer ")) throw new Error("Not authenticated");
-
-      const token = authHeader.replace("Bearer ", "");
-      const userClient = createClient(
-        supabaseUrl,
-        Deno.env.get("SUPABASE_ANON_KEY")!,
-        { global: { headers: { Authorization: authHeader } } }
-      );
-
-      const {
-        data: claimsData,
-        error: authError,
-      } = await userClient.auth.getClaims(token);
-
-      userId = claimsData?.claims?.sub ?? null;
-      if (authError || !userId) throw new Error("Not authenticated");
-
       const { data: isAdmin } = await supabase.rpc("has_role", {
         _user_id: userId,
         _role: "admin",
       });
-
       if (!isAdmin) throw new Error("Admin access required");
     }
 
@@ -484,10 +478,29 @@ Deno.serve(async (req) => {
         );
       }
 
+      // Create order in Supabase for history
+      const { data: orderData, error: orderError } = await supabase
+        .from("orders")
+        .insert({ user_id: userId, grand_total: grandTotal })
+        .select("id")
+        .single();
+      if (orderError) throw orderError;
+
+      const orderId = orderData.id;
+      const orderItems = orderItemsData.map((item) => ({
+        ...item,
+        order_id: orderId,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from("order_items")
+        .insert(orderItems);
+      if (itemsError) throw itemsError;
+
       return new Response(
         JSON.stringify({
           success: true,
-          order_id: null,
+          order_id: orderId,
           message: "Order placed successfully",
           grand_total: grandTotal,
         }),

@@ -161,20 +161,15 @@ const PriceLookup = () => {
       <main className="w-full max-w-lg mx-auto px-4 sm:px-6 py-6 flex flex-col min-h-screen">
         {/* Top bar */}
         <div className="flex items-center justify-between pt-4 pb-2">
-          {isAdmin ? (
+          {isAdmin && (
             <button onClick={() => navigate("/admin")} className="h-9 w-9 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
               <Settings className="h-4.5 w-4.5" />
             </button>
-          ) : (
-            <div />
           )}
-          {user ? (
-            <button onClick={signOut} className="h-9 w-9 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title="Logout">
-              <LogOut className="h-4.5 w-4.5" />
-            </button>
-          ) : (
-            <div />
-          )}
+          {!isAdmin && <div />}
+          <button onClick={signOut} className="h-9 w-9 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title="Logout">
+            <LogOut className="h-4.5 w-4.5" />
+          </button>
         </div>
 
         {/* Hero / Branding */}
