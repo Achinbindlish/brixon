@@ -28,6 +28,7 @@ export const usePlaceOrder = () => {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       return (data?.order_id as string | null) ?? null;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles-with-stock"] });
     },
