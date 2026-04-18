@@ -484,29 +484,10 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Create order in Supabase for history
-      const { data: orderData, error: orderError } = await supabase
-        .from("orders")
-        .insert({ user_id: userId, grand_total: grandTotal })
-        .select("id")
-        .single();
-      if (orderError) throw orderError;
-
-      const orderId = orderData.id;
-      const orderItems = orderItemsData.map((item) => ({
-        ...item,
-        order_id: orderId,
-      }));
-
-      const { error: itemsError } = await supabase
-        .from("order_items")
-        .insert(orderItems);
-      if (itemsError) throw itemsError;
-
       return new Response(
         JSON.stringify({
           success: true,
-          order_id: orderId,
+          order_id: null,
           message: "Order placed successfully",
           grand_total: grandTotal,
         }),
