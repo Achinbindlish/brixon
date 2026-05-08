@@ -35,7 +35,10 @@ const PriceLookup = () => {
   const [notFound, setNotFound] = useState(false);
   const [orderQty, setOrderQty] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const bulkInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const bulkResultsRef = useRef<HTMLDivElement>(null);
 
+  const MAX_BULK = 20;
   const [bulkEntries, setBulkEntries] = useState<BulkEntry[]>(
     Array.from({ length: 10 }, () => ({ articleNumber: "", result: null, notFound: false, orderQty: "" }))
   );
