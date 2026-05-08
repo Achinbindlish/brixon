@@ -2,17 +2,18 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Navigate, useNavigate } from "react-router-dom";
-import { Loader2, ArrowLeft, Package, ClipboardList, RefreshCw, Users, FileText } from "lucide-react";
+import { Loader2, ArrowLeft, Package, ClipboardList, RefreshCw, Users, FileText, AlertTriangle } from "lucide-react";
 import AdminOrders from "@/components/admin/AdminOrders";
 import AdminArticles from "@/components/admin/AdminArticles";
 import SheetsSync from "@/components/admin/SheetsSync";
 import AdminUsers from "@/components/admin/AdminUsers";
 import AdminContent from "@/components/admin/AdminContent";
+import AdminLowStock from "@/components/admin/AdminLowStock";
 
 const Admin = () => {
   const { user, loading: authLoading } = useAuth();
   const { data: isAdmin, isLoading: roleLoading } = useIsAdmin();
-  const [tab, setTab] = useState<"orders" | "articles" | "sync" | "users" | "content">("orders");
+  const [tab, setTab] = useState<"orders" | "articles" | "sync" | "users" | "content" | "lowstock">("orders");
   const navigate = useNavigate();
 
   if (authLoading || roleLoading) {
