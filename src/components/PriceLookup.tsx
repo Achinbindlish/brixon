@@ -342,8 +342,8 @@ const PriceLookup = () => {
               ))}
             </div>
 
-            <button onClick={addBulkEntry} className="w-full h-9 rounded-md border border-dashed border-border text-muted-foreground text-xs flex items-center justify-center gap-1.5 hover:text-foreground hover:bg-secondary transition-colors">
-              <Plus className="h-3.5 w-3.5" /> Add more
+            <button onClick={addBulkEntry} disabled={bulkEntries.length >= MAX_BULK} className="w-full h-9 rounded-md border border-dashed border-border text-muted-foreground text-xs flex items-center justify-center gap-1.5 hover:text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <Plus className="h-3.5 w-3.5" /> {bulkEntries.length >= MAX_BULK ? `Max ${MAX_BULK} reached` : `Add more (${bulkEntries.length}/${MAX_BULK})`}
             </button>
 
             <button onClick={handleBulkSearch} className="w-full h-10 rounded-md bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 active:scale-[0.99] transition-all">
