@@ -283,7 +283,7 @@ Deno.serve(async (req) => {
 
     // === SAVE CONFIG ===
     if (action === "save-config") {
-      const { sheet_id, sheet_name, service_account_json } = body;
+      const { sheet_id, sheet_name, service_account_json, price_sheet_id, price_sheet_name } = body;
       if (!sheet_id) throw new Error("Invalid input: Sheet ID is required");
 
       const settings: { setting_key: string; setting_value: string }[] = [
@@ -293,6 +293,10 @@ Deno.serve(async (req) => {
           setting_value: sheet_name || "Sheet1",
         },
       ];
+      if (price_sheet_id !== undefined) {
+        settings.push({ setting_key: "price_sheet_id", setting_value: price_sheet_id || "" });
+        settings.push({ setting_key: "price_sheet_name", setting_value: price_sheet_name || "Sheet1" });
+      }
 
       if (service_account_json) {
         try {
