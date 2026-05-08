@@ -455,10 +455,12 @@ Deno.serve(async (req) => {
       const token = await getAccessToken(config.serviceAccountJson);
       const values = await getSheetData(token, config.sheetId, config.sheetName);
       const allRows = parseRows(values);
+      const priceMap = await getPriceMap(token, config.priceSheetId, config.priceSheetName);
 
       let grandTotal = 0;
       const orderItemsData: any[] = [];
       const stockUpdates: { rowIndex: number; newStock: number }[] = [];
+      const articleNewTotals: Record<string, number> = {};
 
       for (const item of items) {
         const { article_no, quantity } = item;
@@ -494,13 +496,15 @@ Deno.serve(async (req) => {
           remaining -= deduct;
         }
 
-        const total = 0; // No price in sheet
+        const unitPrice = priceMap.get(bundles[0].articleNo.toUpperCase()) ?? (bundles[0].pricePerMeter || 0);
+        const total = unitPrice * quantity;
         grandTotal += total;
+        articleNewTotals[bundles[0].articleNo] = totalStock - quantity;
 
         orderItemsData.push({
           article_number: bundles[0].articleNo,
           description: "",
-          price: 0,
+          price: unitPrice,
           quantity,
           total,
           stock_unit: "meter",
@@ -515,6 +519,21 @@ Deno.serve(async (req) => {
           `${config.sheetName}!C${update.rowIndex}`,
           String(update.newStock)
         );
+      }
+
+      // Enqueue low-stock alerts (threshold 3.5m) for articles that crossed below
+      const THRESHOLD = 3.5;
+      const lowAlerts = Object.entries(articleNewTotals)
+        .filter(([, stock]) => stock > 0 && stock < THRESHOLD)
+        .map(([article_no, stock]) => ({
+          article_no,
+          stock,
+          threshold: THRESHOLD,
+          source: "order",
+          status: "pending",
+        }));
+      if (lowAlerts.length > 0) {
+        await supabase.from("low_stock_alerts").insert(lowAlerts);
       }
 
       // Create order in Supabase for history
