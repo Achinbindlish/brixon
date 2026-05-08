@@ -202,7 +202,7 @@ function parseRows(values: string[][]): SheetRow[] {
   }));
 }
 
-function groupByArticle(rows: SheetRow[]) {
+function groupByArticle(rows: SheetRow[], priceMap?: Map<string, number>) {
   const grouped = new Map<string, SheetRow[]>();
   for (const row of rows) {
     if (!row.articleNo) continue;
@@ -214,7 +214,7 @@ function groupByArticle(rows: SheetRow[]) {
     id: articleNo,
     articleNumber: articleNo,
     description: "",
-    price: bundles[0]?.pricePerMeter || 0,
+    price: priceMap?.get(articleNo.toUpperCase()) ?? (bundles[0]?.pricePerMeter || 0),
     unit: "pc",
     stockUnit: "meter",
     stock: bundles.reduce((sum, b) => sum + b.stock, 0),
