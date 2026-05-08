@@ -324,9 +324,11 @@ const PriceLookup = () => {
                 <div key={i} className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground w-5 text-right shrink-0">{i + 1}.</span>
                   <input
+                    ref={(el) => (bulkInputRefs.current[i] = el)}
                     type="text"
                     value={entry.articleNumber}
                     onChange={(e) => updateBulkArticle(i, e.target.value)}
+                    onKeyDown={(e) => handleBulkInputKeyDown(e, i)}
                     placeholder="Article #"
                     className="flex-1 h-9 px-3 rounded-md border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-shadow"
                     autoComplete="off" autoCorrect="off" spellCheck={false}
