@@ -84,7 +84,22 @@ const PriceLookup = () => {
   };
 
   const addBulkEntry = () => {
+    if (bulkEntries.length >= MAX_BULK) return;
     setBulkEntries([...bulkEntries, { articleNumber: "", result: null, notFound: false, orderQty: "" }]);
+  };
+
+  const handleBulkInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    const next = index + 1;
+    if (next < bulkEntries.length) {
+      bulkInputRefs.current[next]?.focus();
+    } else if (bulkEntries.length < MAX_BULK) {
+      setBulkEntries((prev) => [...prev, { articleNumber: "", result: null, notFound: false, orderQty: "" }]);
+      setTimeout(() => bulkInputRefs.current[next]?.focus(), 0);
+    } else {
+      handleBulkSearch();
+    }
   };
 
   const removeBulkEntry = (index: number) => {
