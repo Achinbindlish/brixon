@@ -567,6 +567,35 @@ Deno.serve(async (req) => {
       );
     }
 
+    // === SCAN LOW STOCK (Admin / cron) ===
+    if (action === "scan-low-stock") {
+      const config = await getConfig(supabase);
+      if (!config.sheetId || !config.serviceAccountJson) {
+        throw new Error("Invalid input: Google Sheets not configured");
+      }
+      const token = await getAccessToken(config.serviceAccountJson);
+      const values = await getSheetData(token, config.sheetId, config.sheetName);
+      const rows = parseRows(values);
+      const totals = new Map<string, number>();
+      for (const r of rows) {
+        if (!r.articleNo) continue;
+        totals.set(r.articleNo, (totals.get(r.articleNo) || 0) + r.stock);
+      }
+      const THRESHOLD = 3.5;
+      const alerts = Array.from(totals.entries())
+        .filter(([, stock]) => stock > 0 && stock < THRESHOLD)
+        .map(([article_no, stock]) => ({
+          article_no, stock, threshold: THRESHOLD, source: "daily", status: "pending",
+        }));
+      if (alerts.length > 0) {
+        await supabase.from("low_stock_alerts").insert(alerts);
+      }
+      return new Response(
+        JSON.stringify({ success: true, count: alerts.length }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // === UPDATE ROW (Admin) ===
     if (action === "update-row") {
       const { article_no, bundle_no, data: updateData } = body;
