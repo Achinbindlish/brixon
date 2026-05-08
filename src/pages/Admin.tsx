@@ -30,6 +30,7 @@ const Admin = () => {
   const tabs = [
     { id: "orders" as const, label: "Orders", icon: ClipboardList },
     { id: "articles" as const, label: "Articles", icon: Package },
+    { id: "lowstock" as const, label: "Alerts", icon: AlertTriangle },
     { id: "sync" as const, label: "Sync", icon: RefreshCw },
     { id: "users" as const, label: "Users", icon: Users },
     { id: "content" as const, label: "Content", icon: FileText },
