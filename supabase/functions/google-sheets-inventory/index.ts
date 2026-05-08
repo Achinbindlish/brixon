@@ -417,11 +417,12 @@ Deno.serve(async (req) => {
         );
       }
 
+      const priceMap = await getPriceMap(token, config.priceSheetId, config.priceSheetName);
       const result = {
         id: matching[0].articleNo,
         articleNumber: matching[0].articleNo,
         description: "",
-        price: matching[0].pricePerMeter || 0,
+        price: priceMap.get(matching[0].articleNo.toUpperCase()) ?? (matching[0].pricePerMeter || 0),
         unit: "pc",
         stockUnit: "meter",
         stock: matching.reduce((sum, b) => sum + b.stock, 0),
