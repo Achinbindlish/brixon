@@ -35,7 +35,10 @@ const PriceLookup = () => {
   const [notFound, setNotFound] = useState(false);
   const [orderQty, setOrderQty] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const bulkInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const bulkResultsRef = useRef<HTMLDivElement>(null);
 
+  const MAX_BULK = 20;
   const [bulkEntries, setBulkEntries] = useState<BulkEntry[]>(
     Array.from({ length: 10 }, () => ({ articleNumber: "", result: null, notFound: false, orderQty: "" }))
   );
@@ -81,7 +84,22 @@ const PriceLookup = () => {
   };
 
   const addBulkEntry = () => {
+    if (bulkEntries.length >= MAX_BULK) return;
     setBulkEntries([...bulkEntries, { articleNumber: "", result: null, notFound: false, orderQty: "" }]);
+  };
+
+  const handleBulkInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    const next = index + 1;
+    if (next < bulkEntries.length) {
+      bulkInputRefs.current[next]?.focus();
+    } else if (bulkEntries.length < MAX_BULK) {
+      setBulkEntries((prev) => [...prev, { articleNumber: "", result: null, notFound: false, orderQty: "" }]);
+      setTimeout(() => bulkInputRefs.current[next]?.focus(), 0);
+    } else {
+      handleBulkSearch();
+    }
   };
 
   const removeBulkEntry = (index: number) => {
@@ -112,6 +130,9 @@ const PriceLookup = () => {
     });
     setBulkEntries(updated);
     setBulkSearched(true);
+    setTimeout(() => {
+      bulkResultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
   };
 
   const handleBulkOrder = async () => {
@@ -303,9 +324,11 @@ const PriceLookup = () => {
                 <div key={i} className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground w-5 text-right shrink-0">{i + 1}.</span>
                   <input
+                    ref={(el) => (bulkInputRefs.current[i] = el)}
                     type="text"
                     value={entry.articleNumber}
                     onChange={(e) => updateBulkArticle(i, e.target.value)}
+                    onKeyDown={(e) => handleBulkInputKeyDown(e, i)}
                     placeholder="Article #"
                     className="flex-1 h-9 px-3 rounded-md border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-shadow"
                     autoComplete="off" autoCorrect="off" spellCheck={false}
@@ -319,8 +342,8 @@ const PriceLookup = () => {
               ))}
             </div>
 
-            <button onClick={addBulkEntry} className="w-full h-9 rounded-md border border-dashed border-border text-muted-foreground text-xs flex items-center justify-center gap-1.5 hover:text-foreground hover:bg-secondary transition-colors">
-              <Plus className="h-3.5 w-3.5" /> Add more
+            <button onClick={addBulkEntry} disabled={bulkEntries.length >= MAX_BULK} className="w-full h-9 rounded-md border border-dashed border-border text-muted-foreground text-xs flex items-center justify-center gap-1.5 hover:text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <Plus className="h-3.5 w-3.5" /> {bulkEntries.length >= MAX_BULK ? `Max ${MAX_BULK} reached` : `Add more (${bulkEntries.length}/${MAX_BULK})`}
             </button>
 
             <button onClick={handleBulkSearch} className="w-full h-10 rounded-md bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 active:scale-[0.99] transition-all">
@@ -328,7 +351,7 @@ const PriceLookup = () => {
             </button>
 
             {bulkSearched && (
-              <div className="space-y-3">
+              <div ref={bulkResultsRef} className="space-y-3 scroll-mt-4">
                 {bulkEntries.map((entry, i) => {
                   if (!entry.articleNumber.trim()) return null;
                   if (entry.notFound) {
