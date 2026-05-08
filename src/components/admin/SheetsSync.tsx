@@ -93,6 +93,8 @@ const SheetsSync = () => {
             action: "save-config",
             sheet_id: sheetId.trim(),
             sheet_name: sheetName.trim() || "Sheet1",
+            price_sheet_id: priceSheetId.trim(),
+            price_sheet_name: priceSheetName.trim() || "Sheet1",
             ...(serviceAccountJson && { service_account_json: serviceAccountJson }),
           },
         }
