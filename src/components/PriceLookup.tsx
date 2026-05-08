@@ -351,7 +351,7 @@ const PriceLookup = () => {
             </button>
 
             {bulkSearched && (
-              <div className="space-y-3">
+              <div ref={bulkResultsRef} className="space-y-3 scroll-mt-4">
                 {bulkEntries.map((entry, i) => {
                   if (!entry.articleNumber.trim()) return null;
                   if (entry.notFound) {
