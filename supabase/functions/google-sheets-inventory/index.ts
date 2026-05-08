@@ -373,7 +373,8 @@ Deno.serve(async (req) => {
       }
       const token = await getAccessToken(config.serviceAccountJson);
       const values = await getSheetData(token, config.sheetId, config.sheetName);
-      const articles = groupByArticle(parseRows(values));
+      const priceMap = await getPriceMap(token, config.priceSheetId, config.priceSheetName);
+      const articles = groupByArticle(parseRows(values), priceMap);
 
       return new Response(
         JSON.stringify({ success: true, data: articles }),
