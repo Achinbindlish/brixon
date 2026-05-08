@@ -251,6 +251,7 @@ Deno.serve(async (req) => {
       "test-connection",
       "update-row",
       "add-row",
+      "scan-low-stock",
     ];
     const publicActions = ["get-all", "search", "process-order"];
     if (!adminActions.includes(action) && !publicActions.includes(action)) {
