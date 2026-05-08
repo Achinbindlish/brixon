@@ -130,6 +130,9 @@ const PriceLookup = () => {
     });
     setBulkEntries(updated);
     setBulkSearched(true);
+    setTimeout(() => {
+      bulkResultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
   };
 
   const handleBulkOrder = async () => {
