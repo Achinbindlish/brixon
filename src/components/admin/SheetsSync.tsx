@@ -244,7 +244,34 @@ const SheetsSync = () => {
             />
           </div>
 
+          <div className="space-y-1.5 pt-2 border-t border-border">
+            <label className="text-xs font-medium text-foreground">
+              Price Spreadsheet ID (separate sheet)
+            </label>
+            <input
+              value={priceSheetId}
+              onChange={(e) => setPriceSheetId(e.target.value)}
+              placeholder="Spreadsheet ID with Article_No + Price"
+              className="w-full h-9 px-3 rounded-md border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Two columns: <code className="bg-muted px-1 rounded">Article_No</code>, <code className="bg-muted px-1 rounded">Price</code>. Share with the same service account.
+            </p>
+          </div>
+
           <div className="space-y-1.5">
+            <label className="text-xs font-medium text-foreground">
+              Price Sheet Tab Name
+            </label>
+            <input
+              value={priceSheetName}
+              onChange={(e) => setPriceSheetName(e.target.value)}
+              placeholder="Sheet1"
+              className="w-full h-9 px-3 rounded-md border border-input bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            />
+          </div>
+
+          <div className="space-y-1.5 pt-2 border-t border-border">
             <label className="text-xs font-medium text-foreground">
               Service Account JSON Credentials
             </label>
