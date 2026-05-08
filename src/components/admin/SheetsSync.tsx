@@ -24,6 +24,8 @@ const useSyncSettings = () => {
 const SheetsSync = () => {
   const [sheetId, setSheetId] = useState("");
   const [sheetName, setSheetName] = useState("Sheet1");
+  const [priceSheetId, setPriceSheetId] = useState("");
+  const [priceSheetName, setPriceSheetName] = useState("Sheet1");
   const [credentialsFile, setCredentialsFile] = useState<File | null>(null);
   const [credentialsLoaded, setCredentialsLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -35,6 +37,8 @@ const SheetsSync = () => {
     if (syncSettings) {
       setSheetId(syncSettings["google_sheet_id"] || "");
       setSheetName(syncSettings["google_sheet_name"] || "Sheet1");
+      setPriceSheetId(syncSettings["price_sheet_id"] || "");
+      setPriceSheetName(syncSettings["price_sheet_name"] || "Sheet1");
       setCredentialsLoaded(!!syncSettings["service_account_json"]);
     }
   }, [syncSettings]);
