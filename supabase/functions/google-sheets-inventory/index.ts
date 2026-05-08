@@ -154,7 +154,31 @@ async function getConfig(supabase: any) {
     sheetId: map["google_sheet_id"] || "",
     sheetName: map["google_sheet_name"] || "Sheet1",
     serviceAccountJson: map["service_account_json"] || "",
+    priceSheetId: map["price_sheet_id"] || "",
+    priceSheetName: map["price_sheet_name"] || "Sheet1",
   };
+}
+
+// Fetch price map { ARTICLE_NO_UPPER: price } from the prices spreadsheet.
+// Schema: column A = Article_No, column B = Price
+async function getPriceMap(
+  accessToken: string,
+  priceSheetId: string,
+  priceSheetName: string
+): Promise<Map<string, number>> {
+  const map = new Map<string, number>();
+  if (!priceSheetId) return map;
+  try {
+    const values = await getSheetData(accessToken, priceSheetId, priceSheetName);
+    for (let i = 1; i < values.length; i++) {
+      const article = (values[i][0] || "").trim().toUpperCase();
+      const price = Number(values[i][1] || 0);
+      if (article) map.set(article, isNaN(price) ? 0 : price);
+    }
+  } catch (e) {
+    console.error("Price sheet fetch failed:", e);
+  }
+  return map;
 }
 
 // Column layout: Article_No=A(0), Bundle_No=B(1), Stock=C(2), Price Per Meter=D(3)
