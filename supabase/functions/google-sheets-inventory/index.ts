@@ -274,12 +274,21 @@ Deno.serve(async (req) => {
     }
 
     if (adminActions.includes(action)) {
-      if (!userId) throw new Error("Not authenticated");
-      const { data: isAdmin } = await supabase.rpc("has_role", {
-        _user_id: userId,
-        _role: "admin",
-      });
-      if (!isAdmin) throw new Error("Admin access required");
+      // Allow cron to call scan-low-stock with the shared secret
+      const cronSecret = Deno.env.get("SHEETS_WEBHOOK_SECRET");
+      const isCronAuthorized =
+        action === "scan-low-stock" &&
+        cronSecret &&
+        body?.cron_secret === cronSecret;
+
+      if (!isCronAuthorized) {
+        if (!userId) throw new Error("Not authenticated");
+        const { data: isAdmin } = await supabase.rpc("has_role", {
+          _user_id: userId,
+          _role: "admin",
+        });
+        if (!isAdmin) throw new Error("Admin access required");
+      }
     }
 
     // === SAVE CONFIG ===
