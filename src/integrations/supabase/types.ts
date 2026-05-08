@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_whatsapp_contacts: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       app_content: {
         Row: {
           body: string
@@ -68,6 +95,39 @@ export type Database = {
           stock_unit?: string
           unit?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      low_stock_alerts: {
+        Row: {
+          article_no: string
+          created_at: string
+          id: string
+          sent_at: string | null
+          source: string
+          status: string
+          stock: number
+          threshold: number
+        }
+        Insert: {
+          article_no: string
+          created_at?: string
+          id?: string
+          sent_at?: string | null
+          source?: string
+          status?: string
+          stock: number
+          threshold?: number
+        }
+        Update: {
+          article_no?: string
+          created_at?: string
+          id?: string
+          sent_at?: string | null
+          source?: string
+          status?: string
+          stock?: number
+          threshold?: number
         }
         Relationships: []
       }

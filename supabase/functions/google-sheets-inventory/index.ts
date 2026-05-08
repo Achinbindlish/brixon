@@ -154,7 +154,31 @@ async function getConfig(supabase: any) {
     sheetId: map["google_sheet_id"] || "",
     sheetName: map["google_sheet_name"] || "Sheet1",
     serviceAccountJson: map["service_account_json"] || "",
+    priceSheetId: map["price_sheet_id"] || "",
+    priceSheetName: map["price_sheet_name"] || "Sheet1",
   };
+}
+
+// Fetch price map { ARTICLE_NO_UPPER: price } from the prices spreadsheet.
+// Schema: column A = Article_No, column B = Price
+async function getPriceMap(
+  accessToken: string,
+  priceSheetId: string,
+  priceSheetName: string
+): Promise<Map<string, number>> {
+  const map = new Map<string, number>();
+  if (!priceSheetId) return map;
+  try {
+    const values = await getSheetData(accessToken, priceSheetId, priceSheetName);
+    for (let i = 1; i < values.length; i++) {
+      const article = (values[i][0] || "").trim().toUpperCase();
+      const price = Number(values[i][1] || 0);
+      if (article) map.set(article, isNaN(price) ? 0 : price);
+    }
+  } catch (e) {
+    console.error("Price sheet fetch failed:", e);
+  }
+  return map;
 }
 
 // Column layout: Article_No=A(0), Bundle_No=B(1), Stock=C(2), Price Per Meter=D(3)
@@ -178,7 +202,7 @@ function parseRows(values: string[][]): SheetRow[] {
   }));
 }
 
-function groupByArticle(rows: SheetRow[]) {
+function groupByArticle(rows: SheetRow[], priceMap?: Map<string, number>) {
   const grouped = new Map<string, SheetRow[]>();
   for (const row of rows) {
     if (!row.articleNo) continue;
@@ -190,7 +214,7 @@ function groupByArticle(rows: SheetRow[]) {
     id: articleNo,
     articleNumber: articleNo,
     description: "",
-    price: bundles[0]?.pricePerMeter || 0,
+    price: priceMap?.get(articleNo.toUpperCase()) ?? (bundles[0]?.pricePerMeter || 0),
     unit: "pc",
     stockUnit: "meter",
     stock: bundles.reduce((sum, b) => sum + b.stock, 0),
@@ -227,6 +251,7 @@ Deno.serve(async (req) => {
       "test-connection",
       "update-row",
       "add-row",
+      "scan-low-stock",
     ];
     const publicActions = ["get-all", "search", "process-order"];
     if (!adminActions.includes(action) && !publicActions.includes(action)) {
@@ -249,17 +274,26 @@ Deno.serve(async (req) => {
     }
 
     if (adminActions.includes(action)) {
-      if (!userId) throw new Error("Not authenticated");
-      const { data: isAdmin } = await supabase.rpc("has_role", {
-        _user_id: userId,
-        _role: "admin",
-      });
-      if (!isAdmin) throw new Error("Admin access required");
+      // Allow cron to call scan-low-stock with the shared secret
+      const cronSecret = Deno.env.get("SHEETS_WEBHOOK_SECRET");
+      const isCronAuthorized =
+        action === "scan-low-stock" &&
+        cronSecret &&
+        body?.cron_secret === cronSecret;
+
+      if (!isCronAuthorized) {
+        if (!userId) throw new Error("Not authenticated");
+        const { data: isAdmin } = await supabase.rpc("has_role", {
+          _user_id: userId,
+          _role: "admin",
+        });
+        if (!isAdmin) throw new Error("Admin access required");
+      }
     }
 
     // === SAVE CONFIG ===
     if (action === "save-config") {
-      const { sheet_id, sheet_name, service_account_json } = body;
+      const { sheet_id, sheet_name, service_account_json, price_sheet_id, price_sheet_name } = body;
       if (!sheet_id) throw new Error("Invalid input: Sheet ID is required");
 
       const settings: { setting_key: string; setting_value: string }[] = [
@@ -269,6 +303,10 @@ Deno.serve(async (req) => {
           setting_value: sheet_name || "Sheet1",
         },
       ];
+      if (price_sheet_id !== undefined) {
+        settings.push({ setting_key: "price_sheet_id", setting_value: price_sheet_id || "" });
+        settings.push({ setting_key: "price_sheet_name", setting_value: price_sheet_name || "Sheet1" });
+      }
 
       if (service_account_json) {
         try {
@@ -345,7 +383,8 @@ Deno.serve(async (req) => {
       }
       const token = await getAccessToken(config.serviceAccountJson);
       const values = await getSheetData(token, config.sheetId, config.sheetName);
-      const articles = groupByArticle(parseRows(values));
+      const priceMap = await getPriceMap(token, config.priceSheetId, config.priceSheetName);
+      const articles = groupByArticle(parseRows(values), priceMap);
 
       return new Response(
         JSON.stringify({ success: true, data: articles }),
@@ -388,11 +427,12 @@ Deno.serve(async (req) => {
         );
       }
 
+      const priceMap = await getPriceMap(token, config.priceSheetId, config.priceSheetName);
       const result = {
         id: matching[0].articleNo,
         articleNumber: matching[0].articleNo,
         description: "",
-        price: matching[0].pricePerMeter || 0,
+        price: priceMap.get(matching[0].articleNo.toUpperCase()) ?? (matching[0].pricePerMeter || 0),
         unit: "pc",
         stockUnit: "meter",
         stock: matching.reduce((sum, b) => sum + b.stock, 0),
@@ -425,10 +465,12 @@ Deno.serve(async (req) => {
       const token = await getAccessToken(config.serviceAccountJson);
       const values = await getSheetData(token, config.sheetId, config.sheetName);
       const allRows = parseRows(values);
+      const priceMap = await getPriceMap(token, config.priceSheetId, config.priceSheetName);
 
       let grandTotal = 0;
       const orderItemsData: any[] = [];
       const stockUpdates: { rowIndex: number; newStock: number }[] = [];
+      const articleNewTotals: Record<string, number> = {};
 
       for (const item of items) {
         const { article_no, quantity } = item;
@@ -464,13 +506,15 @@ Deno.serve(async (req) => {
           remaining -= deduct;
         }
 
-        const total = 0; // No price in sheet
+        const unitPrice = priceMap.get(bundles[0].articleNo.toUpperCase()) ?? (bundles[0].pricePerMeter || 0);
+        const total = unitPrice * quantity;
         grandTotal += total;
+        articleNewTotals[bundles[0].articleNo] = totalStock - quantity;
 
         orderItemsData.push({
           article_number: bundles[0].articleNo,
           description: "",
-          price: 0,
+          price: unitPrice,
           quantity,
           total,
           stock_unit: "meter",
@@ -485,6 +529,21 @@ Deno.serve(async (req) => {
           `${config.sheetName}!C${update.rowIndex}`,
           String(update.newStock)
         );
+      }
+
+      // Enqueue low-stock alerts (threshold 3.5m) for articles that crossed below
+      const THRESHOLD = 3.5;
+      const lowAlerts = Object.entries(articleNewTotals)
+        .filter(([, stock]) => stock > 0 && stock < THRESHOLD)
+        .map(([article_no, stock]) => ({
+          article_no,
+          stock,
+          threshold: THRESHOLD,
+          source: "order",
+          status: "pending",
+        }));
+      if (lowAlerts.length > 0) {
+        await supabase.from("low_stock_alerts").insert(lowAlerts);
       }
 
       // Create order in Supabase for history
@@ -513,6 +572,35 @@ Deno.serve(async (req) => {
           message: "Order placed successfully",
           grand_total: grandTotal,
         }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // === SCAN LOW STOCK (Admin / cron) ===
+    if (action === "scan-low-stock") {
+      const config = await getConfig(supabase);
+      if (!config.sheetId || !config.serviceAccountJson) {
+        throw new Error("Invalid input: Google Sheets not configured");
+      }
+      const token = await getAccessToken(config.serviceAccountJson);
+      const values = await getSheetData(token, config.sheetId, config.sheetName);
+      const rows = parseRows(values);
+      const totals = new Map<string, number>();
+      for (const r of rows) {
+        if (!r.articleNo) continue;
+        totals.set(r.articleNo, (totals.get(r.articleNo) || 0) + r.stock);
+      }
+      const THRESHOLD = 3.5;
+      const alerts = Array.from(totals.entries())
+        .filter(([, stock]) => stock > 0 && stock < THRESHOLD)
+        .map(([article_no, stock]) => ({
+          article_no, stock, threshold: THRESHOLD, source: "daily", status: "pending",
+        }));
+      if (alerts.length > 0) {
+        await supabase.from("low_stock_alerts").insert(alerts);
+      }
+      return new Response(
+        JSON.stringify({ success: true, count: alerts.length }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
